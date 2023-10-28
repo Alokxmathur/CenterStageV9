@@ -389,12 +389,12 @@ public class DriveTrain extends SilverTitansMecanumDrive {
         this.rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Match.log("Reset drivetrain encoders");
     }
 
     public String getStatus() {
         return String.format(Locale.getDefault(),
-                "LF(%s):%.2f(%d>%d),RF:%.2f(%d>%d),LR:%.2f(%d>%d),RR:%.2f(%d>%d)",
-            this.leftFront.getDirection().toString(),
+                "LF:%.2f(%d>%d),RF:%.2f(%d>%d),LR:%.2f(%d>%d),RR:%.2f(%d>%d)",
             this.leftFront.getPower(), this.leftFront.getCurrentPosition(), this.leftFront.getTargetPosition(),
             this.rightFront.getPower(), this.rightFront.getCurrentPosition(), this.rightFront.getTargetPosition(),
             this.leftRear.getPower(), this.leftRear.getCurrentPosition(), this.leftRear.getTargetPosition(),

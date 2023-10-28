@@ -44,7 +44,7 @@ public class Arm {
 
     public void assumeInitialPosition() {
         this.rotator.setPosition(RobotConfig.ROTATOR_INITIAL_POSITION);
-        this.claw.setPosition(RobotConfig.CLAW_OPEN_POSITION);
+        this.claw.setPosition(RobotConfig.CLAW_CLENCH_POSITION);
         //this.wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.shoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

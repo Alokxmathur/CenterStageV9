@@ -16,15 +16,21 @@
     public static final String ELBOW = "elbow";
     public static final String ROTATOR = "rotator";
     public static final String CLAW = "claw";
+    public static final String DRONE_LAUNCHER = "droneLauncher";
 
-    public static final double CLAW_OPEN_POSITION = .25;
+    public static final double CLAW_OPEN_POSITION = .35;
     public static final double CLAW_INCREMENT = .05;
-    public static final double CLAW_CLENCH_POSITION = .10;
+    public static final double CLAW_CLENCH_POSITION = 0;
     public static final double ROTATOR_INITIAL_POSITION = 0;
     public static final double ROTATOR_TURNED_OVER_POSITION = .180;
     public static final double ROTATOR_INCREMENT = .05;
 
-    public static final double CAUTIOUS_SPEED = 40;
+    public static final double TRIGGER_INITIAL_POSITION = .35;
+    public static final double TRIGGER_RELEASE_POSITION = 0;
+    public static final double TRIGGER_INCREMENT = 0.01;
+
+
+    public static final double CAUTIOUS_SPEED = 0.5;
 
     //Robot center from back is five and half inches away
     public static double ROBOT_CENTER_FROM_BACK = 5.5 * Field.MM_PER_INCH;
@@ -50,12 +56,12 @@
     public static final int SHOULDER_INCREMENT = 10;
 
     public static final ArmPosition ARM_PICKUP_POSITION = new ArmPosition(0, 0, ROTATOR_INITIAL_POSITION, CLAW_OPEN_POSITION);
-    public static final ArmPosition ARM_TRAVEL_POSITION = new ArmPosition(230, -2000, ROTATOR_INITIAL_POSITION, CLAW_CLENCH_POSITION);
-    public static final ArmPosition ARM_DEPOSIT_POSITION = new ArmPosition(800, 140, ROTATOR_TURNED_OVER_POSITION, CLAW_CLENCH_POSITION);
+    public static final ArmPosition ARM_TRAVEL_POSITION = new ArmPosition(230, -1300, ROTATOR_INITIAL_POSITION, CLAW_CLENCH_POSITION);
+    public static final ArmPosition ARM_DEPOSIT_POSITION = new ArmPosition(230, -2000, ROTATOR_INITIAL_POSITION, CLAW_CLENCH_POSITION);
 
     public static final String INOUT_TAKE_MOTOR = "inoutMotor";
     public static final double MAX_INOUT_SPEED = 1.0;
 
-    public static final int X_PIXEL_COUNT = 2304 ;
+    public static final int X_PIXEL_COUNT = 2304;
     public static final int Y_PIXEL_COUNT = 1536;
  }

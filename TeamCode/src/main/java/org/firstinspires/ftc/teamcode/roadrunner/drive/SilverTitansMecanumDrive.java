@@ -15,7 +15,6 @@ import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
-import com.qualcomm.hardware.bosch.BHI260IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -57,8 +56,8 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.SilverTitansDriveC
  */
 @Config
 public class SilverTitansMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0.1);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0.1);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(4, 0, 0.1);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(4, 0, 0.1);
 
     public static double LATERAL_MULTIPLIER = 1;
 

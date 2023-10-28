@@ -8,10 +8,10 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.game.Alliance;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.components.Arm;
+import org.firstinspires.ftc.teamcode.robot.components.DroneLauncher;
 import org.firstinspires.ftc.teamcode.robot.components.InOutTake;
 import org.firstinspires.ftc.teamcode.robot.components.LED;
 import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
@@ -85,6 +85,7 @@ public class Robot {
     LED led;
     Arm arm;
     InOutTake inOutTake;
+    DroneLauncher droneLauncher;
 
     ObjectDetectorWebcam webcam;
 
@@ -112,6 +113,8 @@ public class Robot {
         initDriveTrain();
         this.led = new LED(hardwareMap);
         this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+
+        this.droneLauncher = new DroneLauncher(hardwareMap);
 
         this.arm = new Arm(hardwareMap);
         this.inOutTake= new InOutTake(hardwareMap);
@@ -225,10 +228,6 @@ public class Robot {
         return !this.operationThreadTertiary.hasEntries();
     }
 
-    public String getPosition() {
-        return "";//this.vslamCamera.getPoseEstimate().toString();
-    }
-
     public boolean havePosition() {
         return true;//vslamCamera.havePosition();
     }
@@ -258,6 +257,10 @@ public class Robot {
 
         this.handleDriveTrain(gamePad1);
         handleIntake(gamePad1, gamePad2);
+
+        if (gamePad2.right_trigger > 0.2) {
+            droneLauncher.launchDrone();
+        }
     }
 
     public void handleLED(Gamepad gamePad1, Gamepad gamePad2) {
@@ -361,10 +364,6 @@ public class Robot {
 
     public void setPattern(RevBlinkinLedDriver.BlinkinPattern pattern) {
         this.led.setPattern(pattern);
-    }
-
-    public String getVSLAMStatus() {
-        return "";//this.vslamCamera.getStatus();
     }
 
     public RevBlinkinLedDriver.BlinkinPattern getLEDStatus() {

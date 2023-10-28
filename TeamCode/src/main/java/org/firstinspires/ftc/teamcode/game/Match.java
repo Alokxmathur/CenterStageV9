@@ -107,7 +107,7 @@ public class Match {
         if (robot != null && field != null) {
             // Send telemetry message to signify robot context;
             telemetry.addData("State", status + ", spike: " + getSpikePosition());
-            telemetry.addData("Position", robot.getPosition());
+            telemetry.addData("Position", robot.getPose());
             telemetry.addData("Drive", robot.getDriveTrain().getStatus());
             telemetry.addData("LED", robot.getLEDStatus().toString());
             telemetry.addData("TrajectoryErr", getTrajectoryError());
@@ -190,7 +190,7 @@ public class Match {
         field.strokeLine(x2, y2, px, py);
 
         packet.put("State", status + ", spike: " + getSpikePosition());
-        packet.put("Position", robot.getPosition());
+        packet.put("Position", robot.getPose());
         packet.put("Drive", robot.getDriveTrain().getStatus());
         packet.put("LED", robot.getLEDStatus().toString());
         packet.put("TrajectoryErr", getTrajectoryError());

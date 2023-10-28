@@ -21,6 +21,8 @@ public abstract class AutonomousHelper extends OpMode {
     protected Robot robot;
     protected Field field;
 
+    boolean processedAllState = false;
+
     ArrayList<State> states = new ArrayList<>();
 
     Date initStartTime;
@@ -74,7 +76,7 @@ public abstract class AutonomousHelper extends OpMode {
         else if (Field.isNotInitialized()) {
             telemetry.addData("State", "Trajectories initializing, please wait. " +
                     (30 - (int)(new Date().getTime() - initStartTime.getTime())/1000));
-            telemetry.addData("Position", robot.getVSLAMStatus());
+            telemetry.addData("Position", robot.getPose());
         }
         else if (robot.fullyInitialized()) {
             Field.SpikePosition spikePosition = robot.getSpikePosition();

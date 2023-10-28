@@ -33,7 +33,6 @@ public class DriveForDistanceOperation extends DriveTrainOperation {
 
     public boolean isComplete() {
         if (driveTrain.driveTrainWithinRange()) {
-            driveTrain.stop();
             return true;
         }
         return false;

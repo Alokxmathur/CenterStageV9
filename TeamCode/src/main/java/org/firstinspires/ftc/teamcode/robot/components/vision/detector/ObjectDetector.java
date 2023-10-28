@@ -2,10 +2,15 @@ package org.firstinspires.ftc.teamcode.robot.components.vision.detector;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.game.Alliance;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
-import org.opencv.core.*;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -311,8 +316,8 @@ public class ObjectDetector {
         //go through each specified hsv bounds of the detectable object
         for (HsvBounds bounds : detectableObject.getHsvBounds()) {
             //remove all aspects of the image except those within the hsv bounds
-            Core.inRange(pyrDownHsvMat, bounds.getLowerBound(), bounds.getUpperBound(), mSingularMask);
-            Core.bitwise_or(mMask, mSingularMask, mMask);
+            Core.inRange(pyrDownHsvMat, bounds.getLowerBound(), bounds.getUpperBound(), mMask);
+            //Core.bitwise_or(mMask, mSingularMask, mMask);
         }
 
         //dilate image to get less sharp images

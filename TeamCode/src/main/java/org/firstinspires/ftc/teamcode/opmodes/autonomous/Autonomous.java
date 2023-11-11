@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.robot.operations.StrafeRightForDistanceOpe
 public abstract class Autonomous extends AutonomousHelper {
 
     double DISTANCE_TO_TRAVEL_TO_MIDDLE_SPIKE = 42.0 * Field.MM_PER_INCH;
-    double DISTANCE_TO_PUSH_PIXEL = 5 * Field.MM_PER_INCH;
+    double DISTANCE_TO_PUSH_PIXEL = 4 * Field.MM_PER_INCH;
 
     @Override
     public void start() {
@@ -32,7 +32,7 @@ public abstract class Autonomous extends AutonomousHelper {
 
         double distanceForward = DISTANCE_TO_TRAVEL_TO_MIDDLE_SPIKE;
         if (spikePosition == Field.SpikePosition.Middle) {
-            distanceForward+= DISTANCE_TO_PUSH_PIXEL;
+            distanceForward += DISTANCE_TO_PUSH_PIXEL;
         }
         //move forward towards middle spike
         state.addPrimaryOperation(new DriveForDistanceOperation(distanceForward - RobotConfig.ROBOT_LENGTH, RobotConfig.CAUTIOUS_SPEED, "Deliver to Spike Mark 2"));

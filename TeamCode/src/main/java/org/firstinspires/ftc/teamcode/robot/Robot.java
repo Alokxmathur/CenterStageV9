@@ -261,6 +261,9 @@ public class Robot {
         if (gamePad2.right_trigger > 0.2) {
             droneLauncher.launchDrone();
         }
+        else if (gamePad2.left_bumper) {
+            droneLauncher.holdDrone();
+        }
     }
 
     public void handleLED(Gamepad gamePad1, Gamepad gamePad2) {
@@ -304,6 +307,15 @@ public class Robot {
             arm.backwardRotatorIncrementally();
         } else if (gamePad1.dpad_down) {
             arm.forwardRotatorIncrementally();
+        }
+        /*
+            gamePad 1 dpad left/right move rotator backward/forward
+        */
+        else if (gamePad1.dpad_left) {
+            arm.backwardRotator();
+        }
+        else if (gamePad1.dpad_right) {
+            arm.forwardRotator();
         }
 
         /*

@@ -25,8 +25,8 @@
     public static final double ROTATOR_TURNED_OVER_POSITION = .180;
     public static final double ROTATOR_INCREMENT = .05;
 
-    public static final double TRIGGER_INITIAL_POSITION = .35;
-    public static final double TRIGGER_RELEASE_POSITION = 0;
+    public static final double TRIGGER_INITIAL_POSITION = 1;
+    public static final double TRIGGER_RELEASE_POSITION = 0.3;
     public static final double TRIGGER_INCREMENT = 0.01;
 
 

@@ -289,15 +289,21 @@ public class Robot {
      */
     public void handleIntake(Gamepad gamePad1, Gamepad gamePad2) {
         /*
-            gamePad 1 dpad left/right turn on/off the intake
+            gamePad 1: left bumper - intake out
+            gamePad 1: right bumper - intake in
+            gamePad 1: left bumper and right bumper- intake stop
         */
-        if (gamePad1.dpad_left) {
+        if (gamePad1.right_bumper) {
             //start intake
-            inOutTake.setSpeed(-1);
+            inOutTake.setSpeed(RobotConfig.IN_OUT_TAKE_IN_POWER);
         }
-        if (gamePad1.dpad_right) {
-            //stop intake
-            inOutTake.setSpeed(0);
+        if (gamePad1.left_bumper) {
+            //Stop intake
+            inOutTake.setSpeed(RobotConfig.IN_OUT_TAKE_OUT_POWER);
+        }
+        //left bumper pushes pixels out
+        if (gamePad1.left_bumper && gamePad1.right_bumper) {
+            inOutTake.setSpeed(RobotConfig.IN_OUT_TAKE_STOP_POWER);
         }
 
         /*

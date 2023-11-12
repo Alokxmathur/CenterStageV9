@@ -316,8 +316,8 @@ public class ObjectDetector {
         //go through each specified hsv bounds of the detectable object
         for (HsvBounds bounds : detectableObject.getHsvBounds()) {
             //remove all aspects of the image except those within the hsv bounds
-            Core.inRange(pyrDownHsvMat, bounds.getLowerBound(), bounds.getUpperBound(), mMask);
-            //Core.bitwise_or(mMask, mSingularMask, mMask);
+            Core.inRange(pyrDownHsvMat, bounds.getLowerBound(), bounds.getUpperBound(), mSingularMask);
+            Core.bitwise_or(mMask, mSingularMask, mMask);
         }
 
         //dilate image to get less sharp images

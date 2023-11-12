@@ -64,4 +64,8 @@
 
     public static final int X_PIXEL_COUNT = 2304;
     public static final int Y_PIXEL_COUNT = 1536;
+
+    public static final double IN_OUT_TAKE_IN_POWER = -1;
+    public static final double IN_OUT_TAKE_OUT_POWER = 1;
+    public static final double IN_OUT_TAKE_STOP_POWER = 0;
  }

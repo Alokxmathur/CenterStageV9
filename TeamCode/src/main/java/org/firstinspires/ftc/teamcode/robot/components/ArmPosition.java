@@ -10,19 +10,23 @@ public class ArmPosition {
     }
 
     int shoulder, elbow;
-    double rotator, claw;
+    double rotator, wrist, sorter;
 
-    public ArmPosition(int shoulder, int elbow, double rotator, double claw) {
+    public ArmPosition(int shoulder, int elbow, double rotator, double wrist, double sorter) {
         this.shoulder = shoulder;
         this.elbow = elbow;
         this.rotator = rotator;
-        this.claw = claw;
+        this.wrist = wrist;
+        this.sorter = sorter;
     }
 
     public double getRotator() {
         return rotator;
     }
-    public double getClaw() {
-        return claw;
+    public double getWrist() {
+        return wrist;
+    }
+    public double getSorter() {
+        return sorter;
     }
 }

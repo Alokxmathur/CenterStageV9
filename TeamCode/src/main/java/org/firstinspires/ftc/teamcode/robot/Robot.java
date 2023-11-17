@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.robot.components.InOutTake;
 import org.firstinspires.ftc.teamcode.robot.components.LED;
 import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
 import org.firstinspires.ftc.teamcode.robot.components.vision.detector.ObjectDetectorWebcam;
+import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.Operation;
 import org.firstinspires.ftc.teamcode.robot.operations.OperationThread;
 
@@ -325,21 +326,50 @@ public class Robot {
         }
 
         /*
-            gamePad 2 dpad left/right open/close claw totally
+            gamePad 2 dpad left/right manage bucket / sorter
         */
         if (gamePad2.dpad_left) {
-            arm.openClaw();
+            if (gamePad2.left_trigger > 0.2) {
+                arm.sorterLeft();
+            }
+            else {
+                arm.intakePositionBucket();
+            }
         }
         if (gamePad2.dpad_right) {
-            arm.closeClaw();
+            if (gamePad2.left_trigger > 0.2) {
+                arm.sorterRight();
+            }
+            else {
+                arm.dumpPositionBucket();
+            }
         }
         /*
             gamePad 2 dpad up/down open/close claw incrementally
         */
         if (gamePad2.dpad_up) {
-            arm.openClawIncrementally();
+            if (gamePad2.left_trigger > 0.2) {
+                arm.leftSorterIncrementally();
+            }
+            else {
+                arm.lowerBucketIncrementally();
+            }
         } else if (gamePad2.dpad_down) {
-            arm.closeClawIncrementally();
+            if (gamePad2.left_trigger > 0.2) {
+                arm.rightSorterIncrementally();
+            }
+            else {
+                arm.raiseBucketIncrementally();
+            }
+        }
+        if (gamePad2.a) {
+            queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.Deposit2, "Assume deposit position 2"));
+        }
+        if (gamePad2.b) {
+            queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.Deposit1, "Assume deposit position 1"));
+        }
+        if (gamePad2.y) {
+            queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.Travel, "Assume Travel position"));
         }
 
         if (secondaryOperationsCompleted()) {

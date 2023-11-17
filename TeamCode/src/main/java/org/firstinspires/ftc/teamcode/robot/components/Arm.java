@@ -13,7 +13,7 @@ import java.util.Locale;
 
 public class Arm {
     DcMotor shoulder, elbow;
-    Servo rotator, claw;
+    Servo rotator, wrist, sorter;
     boolean shoulderRetained, elbowRetained;
 
     public Arm(HardwareMap hardwareMap) {
@@ -21,65 +21,64 @@ public class Arm {
         this.shoulder = hardwareMap.get(DcMotor.class, RobotConfig.SHOULDER);
         this.shoulder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.shoulder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.shoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //initialize our elbow motor
         this.elbow = hardwareMap.get(DcMotor.class, RobotConfig.ELBOW);
         this.elbow.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.elbow.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //and the rotator
         this.rotator = hardwareMap.get(Servo.class, RobotConfig.ROTATOR);
-        //and the claw
-        this.claw = hardwareMap.get(Servo.class, RobotConfig.CLAW);
+        //and the bucket
+        this.wrist = hardwareMap.get(Servo.class, RobotConfig.BUCKET);
+        //and the sorter
+        this.sorter = hardwareMap.get(Servo.class, RobotConfig.SORTER);
 
         ensureMotorDirections();
         assumeInitialPosition();
     }
 
     public void ensureMotorDirections() {
-        this.elbow.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.elbow.setDirection(DcMotorSimple.Direction.FORWARD);
         this.shoulder.setDirection(DcMotorSimple.Direction.FORWARD);
-        //this.wrist.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void assumeInitialPosition() {
-        this.rotator.setPosition(RobotConfig.ROTATOR_INITIAL_POSITION);
-        this.claw.setPosition(RobotConfig.CLAW_CLENCH_POSITION);
-        //this.wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.shoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //setWristPosition(RobotConfig.WRIST_INITIAL_POSITION);
-        setElbowPosition(0);
-        setShoulderPosition(0);
+        setPositions(RobotConfig.ARM_STARTING_POSITION);
     }
 
-    public void raiseShoulderIncrementally() {
-        setShoulderPosition(shoulder.getTargetPosition() + RobotConfig.SHOULDER_INCREMENT);
-    }
-    public void lowerShoulderIncrementally() {
-        setShoulderPosition(shoulder.getTargetPosition() - RobotConfig.SHOULDER_INCREMENT);
-    }
-    public void raiseElbowIncrementally() {
-        setElbowPosition(elbow.getTargetPosition() + RobotConfig.ELBOW_INCREMENT);
-    }
-    public void lowerElbowIncrementally() {
-        setElbowPosition(elbow.getTargetPosition() - RobotConfig.ELBOW_INCREMENT);
+    public void raiseBucketIncrementally() {
+        this.wrist.setPosition(wrist.getPosition() - RobotConfig.SERVO_INCREMENT);
     }
 
-    public void openClawIncrementally() {
-        this.claw.setPosition(claw.getPosition() - RobotConfig.CLAW_INCREMENT);
+    public void lowerBucketIncrementally() {
+        this.wrist.setPosition(wrist.getPosition() + RobotConfig.SERVO_INCREMENT);
     }
 
-    public void closeClawIncrementally() {
-        this.claw.setPosition(claw.getPosition() + RobotConfig.CLAW_INCREMENT);
+    public void intakePositionBucket() {
+        this.wrist.setPosition(RobotConfig.WRIST_INTAKE_POSITION);
     }
 
-    public void openClaw() {
-        this.claw.setPosition(RobotConfig.CLAW_OPEN_POSITION);
+    public void dumpPositionBucket() {
+        this.wrist.setPosition(RobotConfig.WRIST_DUMP_POSITION);
     }
 
-    public void closeClaw() {
-        this.claw.setPosition(RobotConfig.CLAW_CLENCH_POSITION);
+    public void leftSorterIncrementally() {
+        this.sorter.setPosition(sorter.getPosition() - RobotConfig.SERVO_INCREMENT);
+    }
+
+    public void rightSorterIncrementally() {
+        this.sorter.setPosition(sorter.getPosition() + RobotConfig.SERVO_INCREMENT);
+    }
+
+    public void sorterLeft() {
+        this.sorter.setPosition(RobotConfig.SORTER_LEFT_POSITION);
+    }
+
+    public void sorterRight() {
+        this.sorter.setPosition(RobotConfig.SORTER_RIGHT_POSITION);
     }
 
     public void forwardRotator() {
@@ -90,11 +89,11 @@ public class Arm {
     }
 
     public void backwardRotatorIncrementally() {
-        this.rotator.setPosition(rotator.getPosition() + RobotConfig.ROTATOR_INCREMENT);
+        this.rotator.setPosition(rotator.getPosition() + RobotConfig.SERVO_INCREMENT);
     }
 
     public void forwardRotatorIncrementally() {
-        this.rotator.setPosition(rotator.getPosition() - RobotConfig.ROTATOR_INCREMENT);
+        this.rotator.setPosition(rotator.getPosition() - RobotConfig.SERVO_INCREMENT);
     }
 
     public void stop() {
@@ -106,16 +105,29 @@ public class Arm {
                 setPositions(RobotConfig.ARM_PICKUP_POSITION);
                 break;
             }
-            case Deposit: {
-                setPositions(RobotConfig.ARM_DEPOSIT_POSITION);
+            case Release1: {
+                setPositions(RobotConfig.ARM_RELEASE_POSITION_1);
+                break;
+            }
+            case Release2: {
+                setPositions(RobotConfig.ARM_RELEASE_POSITION_2);
+                break;
+            }
+            case Release3: {
+                setPositions(RobotConfig.ARM_RELEASE_POSITION_3);
+                break;
+            }
+            case Deposit1: {
+                setPositions(RobotConfig.ARM_DEPOSIT_POSITION_1);
+                break;
+            }
+            case Deposit2: {
+                setPositions(RobotConfig.ARM_DEPOSIT_POSITION_2);
                 break;
             }
             case Travel: {
                 setPositions(RobotConfig.ARM_TRAVEL_POSITION);
                 break;
-            }
-            default : {
-                Match.log("Nothing done for arm operation of type: " + type);
             }
         }
     }
@@ -124,7 +136,8 @@ public class Arm {
         setElbowPosition(armPosition.getElbow());
         setShoulderPosition(armPosition.getShoulder());
         rotator.setPosition(armPosition.getRotator());
-        claw.setPosition(armPosition.getClaw());
+        wrist.setPosition(armPosition.getWrist());
+        sorter.setPosition(armPosition.getSorter());
     }
 
     /**
@@ -212,9 +225,9 @@ public class Arm {
      * @return
      */
     public String getStatus() {
-        return String.format(Locale.getDefault(), "S:%d->%d@%.2f, E:%d->%d@%.2f, R:%.3f, C:%.3f",
+        return String.format(Locale.getDefault(), "S:%d->%d@%.2f, E:%d->%d@%.2f, R:%.3f, W:%.3f, S:%.3f",
                 shoulder.getCurrentPosition(), shoulder.getTargetPosition(), shoulder.getPower(),
                 elbow.getCurrentPosition(), elbow.getTargetPosition(), elbow.getPower(),
-                rotator.getPosition(), claw.getPosition());
+                rotator.getPosition(), wrist.getPosition(), sorter.getPosition());
     }
 }

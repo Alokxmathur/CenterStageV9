@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.robot.operations.DriveForDistanceOperation
 import org.firstinspires.ftc.teamcode.robot.operations.State;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeLeftForDistanceOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeRightForDistanceOperation;
+import org.firstinspires.ftc.teamcode.robot.operations.WaitOperation;
 
 public abstract class Autonomous extends AutonomousHelper {
 
@@ -34,6 +35,10 @@ public abstract class Autonomous extends AutonomousHelper {
         if (spikePosition == Field.SpikePosition.Middle) {
             distanceForward += DISTANCE_TO_PUSH_PIXEL;
         }
+        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Release1, "Release Bucket:1"));
+        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Release2, "Release Bucket:2"));
+        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Release3, "Release Bucket:3"));
+        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Travel, "Travel Position"));
         //move forward towards middle spike
         state.addPrimaryOperation(new DriveForDistanceOperation(distanceForward - RobotConfig.ROBOT_LENGTH, RobotConfig.CAUTIOUS_SPEED, "Deliver to Spike Mark 2"));
 
@@ -62,34 +67,41 @@ public abstract class Autonomous extends AutonomousHelper {
         //Spike Mark 1
         if (spikePosition == Field.SpikePosition.Left) {
             if (match.getAlliance() == Alliance.Color.RED) {
-                state.addPrimaryOperation(new StrafeLeftForDistanceOperation(12 * Field.MM_PER_INCH, 20, "Slide Left"));
+                state.addPrimaryOperation(new StrafeLeftForDistanceOperation(12 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Slide Left"));
             }
             //state.addPrimaryOperation(new DriveForDistanceOperation(15*Field.MM_PER_INCH, 10, "Approach Claw to BackDrop"));
         }
         //Spike Mark 2
         else if (spikePosition == Field.SpikePosition.Middle) {
             if (match.getAlliance() == Alliance.Color.RED) {
-                state.addPrimaryOperation(new StrafeLeftForDistanceOperation(8 * Field.MM_PER_INCH, 20, "Slide Left"));
+                state.addPrimaryOperation(new StrafeLeftForDistanceOperation(8 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Slide Left"));
             }
             else {
-                state.addPrimaryOperation(new StrafeRightForDistanceOperation(8 * Field.MM_PER_INCH, 20, "Slide Left"));
+                state.addPrimaryOperation(new StrafeRightForDistanceOperation(8 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Slide Left"));
             }
         }
         //Spike Mark 3
         else {
             if (match.getAlliance() == Alliance.Color.BLUE) {
-                state.addPrimaryOperation(new StrafeRightForDistanceOperation(8 * Field.MM_PER_INCH, 20, "Slide Left"));
+                state.addPrimaryOperation(new StrafeRightForDistanceOperation(8 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Slide Left"));
+            }
+            else {
+                state.addPrimaryOperation(new StrafeLeftForDistanceOperation(4*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Slide left"));
             }
         }
+        state.addSecondaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit1, "Move arm to deposit position 1"));
+        state.addSecondaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit2, "Move arm to deposit position 2"));
+
         states.add(state);
 
         state = new State("Drop yellow pixel");
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit, "Move arm to deposit position"));
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Open, "Drop Yellow Pixel"));
+        state.addPrimaryOperation(new DriveForDistanceOperation(12*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Get closer to backdrop"));
+        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.DropLeft, "Drop Yellow Pixel"));
+        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit1, "Go higher to drop pixel"));
         states.add(state);
 
 
-        state = new State("Navigate to Scoring Area");
+        state = new State("Navigate");
         state.addPrimaryOperation(new DriveForDistanceOperation(-10*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Back Away"));
         if (match.getAlliance() == Alliance.Color.RED) {
             state.addPrimaryOperation(new StrafeRightForDistanceOperation(36*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Navigate"));
@@ -97,7 +109,7 @@ public abstract class Autonomous extends AutonomousHelper {
         else {
             state.addPrimaryOperation(new StrafeLeftForDistanceOperation(36*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Navigate"));
         }
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Travel, "Move arm to travel position"));
+        //state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Travel, "Move arm to travel position"));
 
         states.add(state);
 

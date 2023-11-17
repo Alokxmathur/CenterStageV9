@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.robot.operations;
 
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.firstinspires.ftc.teamcode.robot.components.Arm;
-import org.firstinspires.ftc.teamcode.robot.components.Claw;
 
 import java.util.Date;
 import java.util.Locale;
@@ -26,15 +25,13 @@ import java.util.Locale;
 public class ArmOperation extends Operation {
 
     public enum Type {
-        Open, Close, Pickup, Travel, Deposit
+        DropLeft, DropRight, Pickup, Release1, Release2, Release3, Travel, Deposit1, Deposit2
     }
     Arm arm;
-    Claw claw;
     Type type;
 
     public ArmOperation(Arm arm, Type type, String title) {
         this.arm = arm;
-        this.claw = claw;
         this.type = type;
         this.title = title;
     }
@@ -45,7 +42,7 @@ public class ArmOperation extends Operation {
     }
 
     public boolean isComplete() {
-        if (type == Type.Open || type == Type.Close) {
+        if (type == Type.DropLeft || type == Type.DropRight) {
             return (new Date().getTime() - this.getStartTime().getTime() > RobotConfig.SERVO_REQUIRED_TIME);
         }
         else {
@@ -58,21 +55,21 @@ public class ArmOperation extends Operation {
         switch (this.type) {
             case Pickup:
             case Travel:
-            case Deposit:
+            case Deposit1:
+            case Deposit2:
+            case Release1:
+            case Release2:
+            case Release3:
             {
                 arm.setPositions(type);
                 break;
             }
-
-            case Open:
-            {
-                arm.openClaw();
+            case DropLeft: {
+                arm.sorterRight();
                 break;
             }
-            case Close:
-            {
-                arm.closeClaw();
-                break;
+            case DropRight: {
+                arm.sorterLeft();
             }
         }
     }

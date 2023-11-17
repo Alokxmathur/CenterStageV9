@@ -19,6 +19,8 @@
     public static final String BUCKET = "bucket";
     public static final String SORTER = "sorter";
 
+    public static final String MINIARM = "miniArm";
+
     public static final String DRONE_LAUNCHER = "droneLauncher";
 
     public static final double WRIST_STARTING_POSITION = .9;
@@ -35,6 +37,9 @@
     public static final double TRIGGER_RELEASE_POSITION = 0.3;
     public static final double TRIGGER_INCREMENT = 0.01;
 
+    public static final double MINIARM_INITIAL_POSITION = 0.5;
+
+    public static final double MINIARM_DROP_POSITION = 0.9;
 
     public static final double CAUTIOUS_SPEED = 0.25;
 

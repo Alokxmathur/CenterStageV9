@@ -21,6 +21,7 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.drivercontrolled;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -30,7 +31,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 @TeleOp(name = "Phoebe: Object Finder", group = "Swanky")
-//@Disabled
+@Disabled
 public class ObjectFinderTeleOp extends DriverControlledOperation {
     ObjectDetectorWebcam webcam;
 

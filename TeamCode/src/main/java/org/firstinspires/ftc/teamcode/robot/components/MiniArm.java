@@ -29,13 +29,16 @@ public class MiniArm {
     public void goDrop() {
         this.miniArm.setPosition(RobotConfig.MINIARM_DROP_POSITION);
     }
+    public void goMiddle() {
+        this.miniArm.setPosition(RobotConfig.MINIARM_MIDDLE_POSITION);
+    }
 
     public void incrementalUp() {
-        this.miniArm.setPosition(miniArm.getPosition() + RobotConfig.TRIGGER_INCREMENT);
+        this.miniArm.setPosition(miniArm.getPosition() + RobotConfig.SERVO_INCREMENT);
     }
 
     public void decrementalDrop() {
-        this.miniArm.setPosition(miniArm.getPosition() - RobotConfig.TRIGGER_INCREMENT);
+        this.miniArm.setPosition(miniArm.getPosition() - RobotConfig.SERVO_INCREMENT);
     }
 
     public void setPositions(MiniArmOperation.Type type) {

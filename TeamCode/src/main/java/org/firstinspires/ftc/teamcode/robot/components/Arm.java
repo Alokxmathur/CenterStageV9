@@ -205,7 +205,7 @@ public class Arm {
      * @return
      */
     public boolean isWithinRange() {
-        Match.log(getStatus());
+        //Match.log(getStatus());
         return shoulderIsWithinRange() && elbowIsWithinRange();
     }
 

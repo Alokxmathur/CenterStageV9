@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.drivercontrolled;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.game.Alliance;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.robot.operations.AlignToObjectOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.DriveToObject;
 
 @TeleOp(name = "Baby: Object Aligner", group = "Baby")
+@Disabled
 
 public class ObjectAligner extends ObjectFinderTeleOp {
     public static final int CENTER = RobotConfig.Y_PIXEL_COUNT / 2;

@@ -10,7 +10,7 @@ import java.util.Locale;
 public class MiniArmOperation extends Operation {
 
     public enum Type {
-        Drop, Up
+        Drop, Up, Middle
     }
     MiniArm miniArm;
     Type type;
@@ -44,6 +44,11 @@ public class MiniArmOperation extends Operation {
                 case Drop:
                 {
                     miniArm.goDrop();
+                    break;
+                }
+                case Middle:
+                {
+                    miniArm.goMiddle();
                     break;
                 }
             }

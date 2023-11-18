@@ -17,14 +17,14 @@ public class DroneLauncher {
     }
 
     public void assumeInitialPosition() {
-        this.droneLauncher.setPosition(RobotConfig.TRIGGER_INITIAL_POSITION);
+        this.droneLauncher.setPosition(RobotConfig.DRONE_TRIGGER_INITIAL_POSITION);
     }
 
     public void launchDrone() {
-        this.droneLauncher.setPosition(RobotConfig.TRIGGER_RELEASE_POSITION);
+        this.droneLauncher.setPosition(RobotConfig.DRONE_TRIGGER_RELEASE_POSITION);
     }
     public void holdDrone() {
-        this.droneLauncher.setPosition(RobotConfig.TRIGGER_INITIAL_POSITION);
+        this.droneLauncher.setPosition(RobotConfig.DRONE_TRIGGER_INITIAL_POSITION);
     }
 
     public void incrementalRelease() {

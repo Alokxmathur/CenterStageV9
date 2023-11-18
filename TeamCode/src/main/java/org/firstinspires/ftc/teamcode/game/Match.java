@@ -112,6 +112,7 @@ public class Match {
             telemetry.addData("LED", robot.getLEDStatus().toString());
             telemetry.addData("TrajectoryErr", getTrajectoryError());
             telemetry.addData("Arm", robot.getArmStatus());
+            telemetry.addData("MiniArm", robot.getMiniArmStatus());
             telemetry.addData("Camera", robot.getWebcam().getStatus());
             updateDashBoard(status);
         }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.autonomous;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+
 import org.firstinspires.ftc.teamcode.game.Alliance;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Match;
@@ -7,6 +9,8 @@ import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.BearingOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.DriveForDistanceOperation;
+import org.firstinspires.ftc.teamcode.robot.operations.LedOperation;
+import org.firstinspires.ftc.teamcode.robot.operations.MiniArmOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.State;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeLeftForDistanceOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeRightForDistanceOperation;
@@ -14,56 +18,69 @@ import org.firstinspires.ftc.teamcode.robot.operations.WaitOperation;
 
 public abstract class Autonomous extends AutonomousHelper {
 
-    double DISTANCE_TO_TRAVEL_TO_MIDDLE_SPIKE = 42.0 * Field.MM_PER_INCH;
-    double DISTANCE_TO_PUSH_PIXEL = 4 * Field.MM_PER_INCH;
+    double DISTANCE_TO_TRAVEL_TO_BACKDROP = 62.0 * Field.MM_PER_INCH;
+    double DISTANCE_TO_MIDDLE_OF_SPIKES = 35.0 * Field.MM_PER_INCH;
+    double DISTANCE_TO_BACK_INTO_PROP = 10*Field.MM_PER_INCH;
 
     @Override
     public void start() {
-        double bearingToBackdrop = 0;
+        Field.SpikePosition spikePosition = match.getSpikePosition();
+
+        double bearingToBackdrop;
+        double bearingToDepositPurple = 0;
+        switch (spikePosition) {
+            case NotSeen:
+            case Middle: {
+                bearingToDepositPurple = Math.toRadians(180);
+                break;
+            }
+            case Left: {
+                bearingToDepositPurple = Math.toRadians(-135);
+                break;
+            }
+            case Right: {
+                bearingToDepositPurple = Math.toRadians(-225);
+                break;
+            }
+        }
         if (match.getAlliance() == Alliance.Color.RED) {
+            //Red Alliance
             bearingToBackdrop = Math.toRadians(-90);
         }
         else {
+            //Blue alliance
             bearingToBackdrop = Math.toRadians(90);
-        }
+         }
 
         super.start();
         State state = new State("Deliver Purple Pixel");
-        Field.SpikePosition spikePosition = match.getSpikePosition();
 
-        double distanceForward = DISTANCE_TO_TRAVEL_TO_MIDDLE_SPIKE;
-        if (spikePosition == Field.SpikePosition.Middle) {
-            distanceForward += DISTANCE_TO_PUSH_PIXEL;
-        }
+        state.addSecondaryOperation(new LedOperation(robot.getLed(), RevBlinkinLedDriver.BlinkinPattern.BLUE_VIOLET, "Purple pixel mode"));
         state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Release1, "Release Bucket:1"));
+        state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_MIDDLE_OF_SPIKES, RobotConfig.CAUTIOUS_SPEED, "Leave wall"));
+        state.addPrimaryOperation(new BearingOperation(bearingToDepositPurple, robot.getDriveTrain(), "Show rear to prop"));
+        state.addPrimaryOperation(new DriveForDistanceOperation(-DISTANCE_TO_BACK_INTO_PROP, RobotConfig.CAUTIOUS_SPEED, "Bump prop"));
+        state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_BACK_INTO_PROP/2, RobotConfig.CAUTIOUS_SPEED, "Move back to spike"));
+        state.addPrimaryOperation(new MiniArmOperation(robot.getMiniArm(), MiniArmOperation.Type.Drop, "Drop purple pixel"));
+        state.addPrimaryOperation(new WaitOperation(500, "Wait half a sec"));
+        state.addPrimaryOperation(new MiniArmOperation(robot.getMiniArm(), MiniArmOperation.Type.Up, "Lift dropper up"));
+        state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_BACK_INTO_PROP/2, RobotConfig.CAUTIOUS_SPEED, "Move away from spike"));
+        state.addPrimaryOperation(new BearingOperation(bearingToBackdrop, robot.getDriveTrain(), "face backdrop"));
+
+        states.add(state);
+        //at this point we should be facing the backdrop
+
+        state = new State("Approach backdrop");
+
+        state.addSecondaryOperation(new LedOperation(robot.getLed(), RevBlinkinLedDriver.BlinkinPattern.YELLOW, "Yellow pixel mode"));
         state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Release2, "Release Bucket:2"));
         state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Release3, "Release Bucket:3"));
         state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Travel, "Travel Position"));
         //move forward towards middle spike
-        state.addPrimaryOperation(new DriveForDistanceOperation(distanceForward - RobotConfig.ROBOT_LENGTH, RobotConfig.CAUTIOUS_SPEED, "Deliver to Spike Mark 2"));
-
-        //Spike Mark 1
-        if (spikePosition == Field.SpikePosition.Left) {
-            //turn to left spike
-            state.addPrimaryOperation(new BearingOperation(-bearingToBackdrop/2, robot.getDriveTrain(), "Turn Toward Left spike"));
-            //push pixel
-            state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_PUSH_PIXEL, RobotConfig.CAUTIOUS_SPEED, "Push pixel"));
-        }
-        else if (spikePosition == Field.SpikePosition.Right){
-            //Spike Mark 3
-            state.addPrimaryOperation(new BearingOperation(bearingToBackdrop/2, robot.getDriveTrain(),"Turn Toward Right spike"));
-            //push pixel
-            state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_PUSH_PIXEL, RobotConfig.CAUTIOUS_SPEED, "Push pixel"));
-        }
-        //backup from pixel
-        state.addPrimaryOperation(new DriveForDistanceOperation(-DISTANCE_TO_PUSH_PIXEL, RobotConfig.CAUTIOUS_SPEED, "Backup to leave pixel"));
-        state.addPrimaryOperation(new BearingOperation(bearingToBackdrop, robot.getDriveTrain(), "Face backdrop"));
+        state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_TRAVEL_TO_BACKDROP, RobotConfig.CAUTIOUS_SPEED, "Approach backdrop"));
         states.add(state);
 
-        //position should be x = 36, y = 36
-
-        state = new State("Approach Backdrop");
-        state.addPrimaryOperation(new DriveForDistanceOperation(1.7*Field.TILE_WIDTH, RobotConfig.CAUTIOUS_SPEED, "Approach backdrop"));
+        state = new State("Deliver yellow pixel");
         //Spike Mark 1
         if (spikePosition == Field.SpikePosition.Left) {
             if (match.getAlliance() == Alliance.Color.RED) {

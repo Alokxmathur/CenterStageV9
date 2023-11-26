@@ -21,6 +21,10 @@
 
     public static final String MINIARM = "miniArm";
 
+    public static final String CLAMP = "clamp";
+
+    public static final String INTAKE_ARM = "intakeArm";
+
     public static final String DRONE_LAUNCHER = "droneLauncher";
 
     public static final double WRIST_STARTING_POSITION = .9;
@@ -42,6 +46,7 @@
     public static final double MINIARM_DROP_POSITION = 0.93;
 
     public static final double CAUTIOUS_SPEED = 0.35;
+
 
     //Robot center from back is five and half inches away
     public static double ROBOT_CENTER_FROM_BACK = 5.5 * Field.MM_PER_INCH;
@@ -68,7 +73,11 @@
     public static final ArmPosition ARM_TRAVEL_POSITION = new ArmPosition(1500, 1600, ROTATOR_INITIAL_POSITION, .24, SORTER_LEFT_POSITION);
     public static final ArmPosition ARM_DEPOSIT_POSITION_1 = new ArmPosition(1500, 1200, ROTATOR_TURNED_OVER_POSITION, WRIST_DUMP_POSITION, SORTER_LEFT_POSITION);
     public static final ArmPosition ARM_DEPOSIT_POSITION_2 = new ArmPosition(1000, 1200, ROTATOR_TURNED_OVER_POSITION, WRIST_DUMP_POSITION, SORTER_LEFT_POSITION);
-
+    public static final double CLAMP_INITIAL_POSITION = 0.5;
+    public static final double CLAMP_OPEN_POSITION = 0.55;
+    public static final double INTAKE_ARM_INITIAL_POSITION = 0.5;
+    public static final double INTAKE_ARM_RAISED_POSITION = 0.7;
+    public static final double INTAKE_ARM_LOWERED_POSITION = 0.1;
     public static final String INOUT_TAKE_MOTOR = "inoutMotor";
     public static final double MAX_INOUT_SPEED = 1.0;
 

@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.components.Arm;
 import org.firstinspires.ftc.teamcode.robot.components.DroneLauncher;
-import org.firstinspires.ftc.teamcode.robot.components.InOutTake;
 import org.firstinspires.ftc.teamcode.robot.components.LED;
 import org.firstinspires.ftc.teamcode.robot.components.MiniArm;
 import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
@@ -88,7 +87,6 @@ public class Robot {
     DriveTrain driveTrain;
     LED led;
     Arm arm;
-    InOutTake inOutTake;
     DroneLauncher droneLauncher;
     MiniArm miniArm;
 
@@ -127,7 +125,6 @@ public class Robot {
 
         this.arm = new Arm(hardwareMap);
         this.miniArm = new MiniArm(hardwareMap);
-        this.inOutTake= new InOutTake(hardwareMap);
 
         telemetry.addData("Status", "Creating operations thread, please wait");
         telemetry.update();
@@ -295,24 +292,6 @@ public class Robot {
      */
     public void handleIntake(Gamepad gamePad1, Gamepad gamePad2) {
         /*
-            gamePad 1: left bumper - intake out
-            gamePad 1: right bumper - intake in
-            gamePad 1: left bumper and right bumper- intake stop
-        */
-        if (gamePad1.right_bumper) {
-            //start intake
-            inOutTake.setSpeed(RobotConfig.IN_OUT_TAKE_IN_POWER);
-        }
-        if (gamePad1.left_bumper) {
-            //Stop intake
-            inOutTake.setSpeed(RobotConfig.IN_OUT_TAKE_OUT_POWER);
-        }
-        //left bumper pushes pixels out
-        if (gamePad1.left_bumper && gamePad1.right_bumper) {
-            inOutTake.setSpeed(RobotConfig.IN_OUT_TAKE_STOP_POWER);
-        }
-
-        /*
             gamePad 1 dpad up/down move rotator incrementally
         */
         if (gamePad1.dpad_up) {
@@ -457,10 +436,6 @@ public class Robot {
 
     public MiniArm getMiniArm() {
         return this.miniArm;
-    }
-
-    public String getIntakeStatus() {
-        return this.inOutTake.getStatus();
     }
 
     public ObjectDetectorWebcam getWebcam() {

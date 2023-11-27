@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class ObjectDetector {
 
-    boolean gamePad1A, gamePad1B, gamePad1Y, gamePad1X, gamePad2A, gamePad2B, gamePad2Y, gamePad2X;
+    boolean gamePad1A, gamePad1B, gamePad1Y, gamePad1X, gamePad2A, gamePad2B, gamePad2Y, gamePad2X, gamePad1RightTriggerWasPressed;
 
     Field.SpikePosition lastSpikePosition = Field.SpikePosition.NotSeen;
 
@@ -110,6 +110,13 @@ public class ObjectDetector {
         else {
             gamePad2X = false;
         }
+        if (gamePad1.right_trigger > .2 && !gamePad1RightTriggerWasPressed) {
+            this.detectableObjects.get(ObjectType.PurplePixel).toggleDisabled();
+            gamePad1RightTriggerWasPressed = true;
+        }
+        else {
+            gamePad1RightTriggerWasPressed = false;
+        }
 
     }
 
@@ -145,7 +152,7 @@ public class ObjectDetector {
     };
 
     HsvBounds[] bluePropBounds = {
-            new HsvBounds(new Scalar(105, 50, 100), new Scalar(120, 255, 190))
+            new HsvBounds(new Scalar(105, 50, 80), new Scalar(120, 255, 255))
     };
 
     HsvBounds[] yellowPixelBounds = {
@@ -330,8 +337,8 @@ public class ObjectDetector {
         for (MatOfPoint contour : objectsFound) {
             Rect boundingRectangle = Imgproc.boundingRect(contour);
             //check to see if the contour is within our specified x and y limits
-            if (boundingRectangle.x * 4 <= maxAllowedX && boundingRectangle.x * 4 >= minAllowedX
-                    && boundingRectangle.y * 4 <= maxAllowedY && boundingRectangle.y * 4 >= minAllowedY) {
+            if (boundingRectangle.x * 4 <= maxAllowedY && boundingRectangle.x * 4 >= minAllowedY
+                    && boundingRectangle.y * 4 <= maxAllowedX && boundingRectangle.y * 4 >= minAllowedX) {
                 double area = Imgproc.contourArea(contour);
                 //check to see if contour area is at least our minimum area
                 if (area >= minArea || detectableObject.getType() == ObjectType.CrossHair) {
@@ -413,6 +420,13 @@ public class ObjectDetector {
     public void incrementMaxAllowedY() {
         this.maxAllowedY = Math.min(maxAllowedY + 1, RobotConfig.X_PIXEL_COUNT);
         setupAreaOfInterest();
+    }
+
+    public void setMaxAllowedY(int maxAllowedY) {
+        this.maxAllowedY = maxAllowedY;
+    }
+    public void setMaxAllowedX(int maxAllowedX) {
+        this.maxAllowedX = maxAllowedX;
     }
 
     /** Return the distance to the object from the camera

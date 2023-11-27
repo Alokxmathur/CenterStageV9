@@ -69,6 +69,11 @@ public class DetectableObject {
     }
 
     public void clearFoundObjects() {
+        if (this.foundObjects != null) {
+            for (MatOfPoint contour: this.foundObjects) {
+                contour.release();
+            }
+        }
         this.foundObjects = new ArrayList<>();
         largestArea = 0;
         largestAreaMean = new Scalar(0, 0, 0);

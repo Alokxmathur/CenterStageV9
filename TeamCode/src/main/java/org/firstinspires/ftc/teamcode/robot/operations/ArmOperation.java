@@ -25,7 +25,7 @@ import java.util.Locale;
 public class ArmOperation extends Operation {
 
     public enum Type {
-        DropLeft, DropRight, Pickup, Release1, Release2, Release3, Travel, Deposit1, Deposit2
+        Intake, Travel, InterimTravel, Travel_From_Deposit, Deposit1, Deposit2, Deposit3
     }
     Arm arm;
     Type type;
@@ -42,34 +42,20 @@ public class ArmOperation extends Operation {
     }
 
     public boolean isComplete() {
-        if (type == Type.DropLeft || type == Type.DropRight) {
-            return (new Date().getTime() - this.getStartTime().getTime() > RobotConfig.SERVO_REQUIRED_TIME);
-        }
-        else {
             return arm.isWithinRange();
-        }
     }
 
     @Override
     public void startOperation() {
         switch (this.type) {
-            case Pickup:
+            case Intake:
             case Travel:
+            case InterimTravel:
             case Deposit1:
             case Deposit2:
-            case Release1:
-            case Release2:
-            case Release3:
+            case Deposit3:
             {
                 arm.setPositions(type);
-                break;
-            }
-            case DropLeft: {
-                arm.sorterRight();
-                break;
-            }
-            case DropRight: {
-                arm.sorterLeft();
             }
         }
     }

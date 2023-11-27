@@ -38,7 +38,8 @@ public class DetectorPipeline extends OpenCvPipeline {
     boolean setupCrossHair;
 
     ObjectDetector objectDetector = new ObjectDetector(
-            0, RobotConfig.X_PIXEL_COUNT, 0, RobotConfig.Y_PIXEL_COUNT, MINIMUM_AREA);
+            700, 1200, 0, 2500, MINIMUM_AREA);
+
     public Mat processFrame(Mat inputImageRGB) {
         synchronized (synchronizer) {
             if (!setupCrossHair) {
@@ -120,8 +121,8 @@ public class DetectorPipeline extends OpenCvPipeline {
                                 objectDetector.getRectangleOfInterest().height),
                         new Point(20, objectDetector.getRectangleOfInterest().height),
                         Imgproc.FONT_HERSHEY_SIMPLEX,
-                        2,
-                        BLACK,
+                        3,
+                        RED,
                         2
                 );
             }

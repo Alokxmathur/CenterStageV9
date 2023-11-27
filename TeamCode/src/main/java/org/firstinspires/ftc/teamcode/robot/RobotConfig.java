@@ -24,11 +24,16 @@
     public static final String DRONE_LAUNCHER = "droneLauncher";
 
     public static final double WRIST_STARTING_POSITION = .9;
-    public static final double WRIST_INTAKE_POSITION = .795;
-    public static final double WRIST_DUMP_POSITION = 0.5;
+    public static final double WRIST_DEPOSIT_POSITION_1 = .929;
+    public static final double WRIST_DEPOSIT_POSITION_3 = .45;
+    public static final double WRIST_INTAKE_POSITION = .699;
+    public static final double WRIST_INTERIM_TRAVEL_POSITION = .699;
+    public static final double WRIST_TRAVEL_POSITION = .464;
 
-    public static final double ROTATOR_INITIAL_POSITION = 0.24;
-    public static final double ROTATOR_TURNED_OVER_POSITION = 1.0;
+    public static final double WRIST_DUMP_POSITION = 0.435;
+
+    public static final double ROTATOR_STARTING_POSITION = 1;
+    public static final double ROTATOR_TURNED_OVER_POSITION = .269;
 
     public static final double SORTER_LEFT_POSITION = 0.66;
     public static final double SORTER_RIGHT_POSITION = .24;
@@ -60,14 +65,63 @@
     public static final int ACCEPTABLE_SHOULDER_ERROR = 10;
     public static final double MAX_SHOULDER_POWER = 1.0;
 
-    public static final ArmPosition ARM_STARTING_POSITION = new ArmPosition(0, 0, ROTATOR_INITIAL_POSITION, WRIST_STARTING_POSITION, SORTER_LEFT_POSITION);
-    public static final ArmPosition ARM_PICKUP_POSITION = new ArmPosition(0, 0, ROTATOR_INITIAL_POSITION, WRIST_INTAKE_POSITION, SORTER_LEFT_POSITION);
-    public static final ArmPosition ARM_RELEASE_POSITION_1 = new ArmPosition(400, 0, ROTATOR_INITIAL_POSITION, .24, SORTER_LEFT_POSITION);
-    public static final ArmPosition ARM_RELEASE_POSITION_2 = new ArmPosition(1500, -200, ROTATOR_INITIAL_POSITION, .24, SORTER_LEFT_POSITION);
-    public static final ArmPosition ARM_RELEASE_POSITION_3 = new ArmPosition(1500, -200, ROTATOR_INITIAL_POSITION, .24, SORTER_LEFT_POSITION);
-    public static final ArmPosition ARM_TRAVEL_POSITION = new ArmPosition(1500, 1600, ROTATOR_INITIAL_POSITION, .24, SORTER_LEFT_POSITION);
-    public static final ArmPosition ARM_DEPOSIT_POSITION_1 = new ArmPosition(1500, 1200, ROTATOR_TURNED_OVER_POSITION, WRIST_DUMP_POSITION, SORTER_LEFT_POSITION);
-    public static final ArmPosition ARM_DEPOSIT_POSITION_2 = new ArmPosition(1000, 1200, ROTATOR_TURNED_OVER_POSITION, WRIST_DUMP_POSITION, SORTER_LEFT_POSITION);
+    public static final int SHOULDER_STARTING_POSITION = 0;
+    public static final int SHOULDER_INTAKE_POSITION = 0;
+    public static final int SHOULDER_INTERIM_TRAVEL_POSITION = 0;
+    public static final int SHOULDER_TRAVEL_POSITION = 560;
+    public static final int SHOULDER_DEPOSIT_POSITION = 1730;
+
+    public static final int ELBOW_STARTING_POSITION = 0;
+    public static final int ELBOW_INTAKE_POSITION = -2272;
+    public static final int ELBOW_TRAVEL_POSITION = 0;
+    public static final int ELBOW_INTERIM_TRAVEL_POSITION = -1000;
+    public static final int ELBOW_INTERIM_DEPOSIT_POSITION = -1400;
+    public static final int ELBOW_DEPOSIT_POSITION = -2365;
+
+
+    public static final ArmPosition ARM_STARTING_POSITION = new ArmPosition(
+            SHOULDER_STARTING_POSITION,
+            ELBOW_STARTING_POSITION,
+            ROTATOR_STARTING_POSITION,
+            WRIST_STARTING_POSITION,
+            SORTER_LEFT_POSITION);
+    public static final ArmPosition ARM_INTAKE_POSITION = new ArmPosition(
+            SHOULDER_INTAKE_POSITION,
+            ELBOW_INTAKE_POSITION,
+            ROTATOR_STARTING_POSITION,
+            WRIST_INTAKE_POSITION,
+            SORTER_LEFT_POSITION);
+    public static final ArmPosition ARM_DEPOSIT_POSITION_1 = new ArmPosition(
+            SHOULDER_DEPOSIT_POSITION,
+            ELBOW_INTERIM_DEPOSIT_POSITION,
+            ROTATOR_TURNED_OVER_POSITION,
+            WRIST_TRAVEL_POSITION,
+            SORTER_LEFT_POSITION);
+    public static final ArmPosition ARM_DEPOSIT_POSITION_2 = new ArmPosition(
+            SHOULDER_DEPOSIT_POSITION,
+            ELBOW_INTERIM_DEPOSIT_POSITION,
+            ROTATOR_TURNED_OVER_POSITION,
+            WRIST_INTERIM_TRAVEL_POSITION,
+            SORTER_LEFT_POSITION);
+    public static final ArmPosition ARM_DEPOSIT_POSITION_3 = new ArmPosition(
+            SHOULDER_DEPOSIT_POSITION,
+            ELBOW_DEPOSIT_POSITION,
+            ROTATOR_TURNED_OVER_POSITION,
+            WRIST_DEPOSIT_POSITION_3,
+            SORTER_LEFT_POSITION);
+    public static final ArmPosition ARM_TRAVEL_POSITION = new ArmPosition(
+            SHOULDER_TRAVEL_POSITION,
+            ELBOW_TRAVEL_POSITION,
+            ROTATOR_TURNED_OVER_POSITION,
+            WRIST_TRAVEL_POSITION,
+            SORTER_LEFT_POSITION);
+    public static final ArmPosition ARM_INTERIM_TRAVEL_POSITION = new ArmPosition(
+            SHOULDER_INTERIM_TRAVEL_POSITION,
+            ELBOW_INTERIM_TRAVEL_POSITION,
+            ROTATOR_STARTING_POSITION,
+            WRIST_INTERIM_TRAVEL_POSITION,
+            SORTER_LEFT_POSITION);
+
 
     public static final String INOUT_TAKE_MOTOR = "inoutMotor";
     public static final double MAX_INOUT_SPEED = 1.0;

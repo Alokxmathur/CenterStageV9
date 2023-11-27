@@ -86,6 +86,7 @@ public abstract class AutonomousHelper extends OpMode {
         else {
             telemetry.addData("Status", "Cameras initializing, please wait");
         }
+        robot.handleGameControllers(gamepad1, gamepad2);
         telemetry.update();
         Thread.yield();
     }

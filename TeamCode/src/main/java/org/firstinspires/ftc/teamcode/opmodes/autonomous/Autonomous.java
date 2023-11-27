@@ -56,15 +56,14 @@ public abstract class Autonomous extends AutonomousHelper {
         State state = new State("Deliver Purple Pixel");
 
         state.addSecondaryOperation(new LedOperation(robot.getLed(), RevBlinkinLedDriver.BlinkinPattern.BLUE_VIOLET, "Purple pixel mode"));
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Release1, "Release Bucket:1"));
         state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_MIDDLE_OF_SPIKES, RobotConfig.CAUTIOUS_SPEED, "Leave wall"));
         state.addPrimaryOperation(new BearingOperation(bearingToDepositPurple, robot.getDriveTrain(), "Show rear to prop"));
         state.addPrimaryOperation(new DriveForDistanceOperation(-DISTANCE_TO_BACK_INTO_PROP, RobotConfig.CAUTIOUS_SPEED, "Bump prop"));
-        state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_BACK_INTO_PROP/2, RobotConfig.CAUTIOUS_SPEED, "Move back to spike"));
+        state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_BACK_INTO_PROP/2 + 4*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Move back to spike"));
         state.addPrimaryOperation(new MiniArmOperation(robot.getMiniArm(), MiniArmOperation.Type.Drop, "Drop purple pixel"));
         state.addPrimaryOperation(new WaitOperation(500, "Wait half a sec"));
         state.addPrimaryOperation(new MiniArmOperation(robot.getMiniArm(), MiniArmOperation.Type.Up, "Lift dropper up"));
-        state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_BACK_INTO_PROP/2, RobotConfig.CAUTIOUS_SPEED, "Move away from spike"));
+        state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_BACK_INTO_PROP/2 - 4*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Move away from spike"));
         state.addPrimaryOperation(new BearingOperation(bearingToBackdrop, robot.getDriveTrain(), "face backdrop"));
 
         states.add(state);
@@ -73,9 +72,7 @@ public abstract class Autonomous extends AutonomousHelper {
         state = new State("Approach backdrop");
 
         state.addSecondaryOperation(new LedOperation(robot.getLed(), RevBlinkinLedDriver.BlinkinPattern.YELLOW, "Yellow pixel mode"));
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Release2, "Release Bucket:2"));
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Release3, "Release Bucket:3"));
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Travel, "Travel Position"));
+        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit1, "Deposit position 1"));
         //move forward towards middle spike
         state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_TRAVEL_TO_BACKDROP, RobotConfig.CAUTIOUS_SPEED, "Approach backdrop"));
         states.add(state);
@@ -106,14 +103,12 @@ public abstract class Autonomous extends AutonomousHelper {
                 state.addPrimaryOperation(new StrafeLeftForDistanceOperation(4*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Slide left"));
             }
         }
-        state.addSecondaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit1, "Move arm to deposit position 1"));
-        state.addSecondaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit2, "Move arm to deposit position 2"));
 
         states.add(state);
 
         state = new State("Drop yellow pixel");
         state.addPrimaryOperation(new DriveForDistanceOperation(12*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Get closer to backdrop"));
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.DropLeft, "Drop Yellow Pixel"));
+        state.addSecondaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit2, "Deposit pixel"));
         state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit1, "Go higher to drop pixel"));
         states.add(state);
 

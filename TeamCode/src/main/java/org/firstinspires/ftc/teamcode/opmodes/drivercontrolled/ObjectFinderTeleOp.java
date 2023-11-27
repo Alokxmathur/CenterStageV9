@@ -31,7 +31,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 @TeleOp(name = "Phoebe: Object Finder", group = "Swanky")
-@Disabled
+//@Disabled
 public class ObjectFinderTeleOp extends DriverControlledOperation {
     ObjectDetectorWebcam webcam;
 

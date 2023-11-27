@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
 
@@ -57,11 +56,11 @@ public class Arm {
         this.wrist.setPosition(wrist.getPosition() + RobotConfig.SERVO_INCREMENT);
     }
 
-    public void intakePositionBucket() {
+    public void intakePositionWrist() {
         this.wrist.setPosition(RobotConfig.WRIST_INTAKE_POSITION);
     }
 
-    public void dumpPositionBucket() {
+    public void dumpPositionWrist() {
         this.wrist.setPosition(RobotConfig.WRIST_DUMP_POSITION);
     }
 
@@ -82,7 +81,7 @@ public class Arm {
     }
 
     public void forwardRotator() {
-        this.rotator.setPosition(RobotConfig.ROTATOR_INITIAL_POSITION);
+        this.rotator.setPosition(RobotConfig.ROTATOR_STARTING_POSITION);
     }
     public void backwardRotator() {
         this.rotator.setPosition(RobotConfig.ROTATOR_TURNED_OVER_POSITION);
@@ -101,20 +100,8 @@ public class Arm {
 
     public void setPositions(ArmOperation.Type type) {
         switch (type) {
-            case Pickup: {
-                setPositions(RobotConfig.ARM_PICKUP_POSITION);
-                break;
-            }
-            case Release1: {
-                setPositions(RobotConfig.ARM_RELEASE_POSITION_1);
-                break;
-            }
-            case Release2: {
-                setPositions(RobotConfig.ARM_RELEASE_POSITION_2);
-                break;
-            }
-            case Release3: {
-                setPositions(RobotConfig.ARM_RELEASE_POSITION_3);
+            case Intake: {
+                setPositions(RobotConfig.ARM_INTAKE_POSITION);
                 break;
             }
             case Deposit1: {
@@ -125,9 +112,20 @@ public class Arm {
                 setPositions(RobotConfig.ARM_DEPOSIT_POSITION_2);
                 break;
             }
+            case Deposit3: {
+                setPositions(RobotConfig.ARM_DEPOSIT_POSITION_3);
+                break;
+            }
             case Travel: {
                 setPositions(RobotConfig.ARM_TRAVEL_POSITION);
                 break;
+            }
+            case InterimTravel:Travel: {
+                setPositions(RobotConfig.ARM_INTERIM_TRAVEL_POSITION);
+                break;
+            }
+            case Travel_From_Deposit: {
+                setPositions(RobotConfig.ARM_INTERIM_TRAVEL_POSITION);
             }
         }
     }

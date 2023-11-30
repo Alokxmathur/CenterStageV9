@@ -30,7 +30,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.game.Alliance;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
@@ -47,12 +46,12 @@ public class ObjectDetectorWebcam {
     public static final int MINIMUM_AREA = 100;
 
     OpenCvWebcam webcam;
-    DetectorPipeline pipeline;
+    ObjectDetectorPipeline pipeline;
 
     public static final Object synchronizer = new Object();
 
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
-        pipeline = new DetectorPipeline();
+        pipeline = new ObjectDetectorPipeline();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, RobotConfig.WEBCAM_ID), cameraMonitorViewId);
         webcam.setPipeline(pipeline);
@@ -137,7 +136,6 @@ public class ObjectDetectorWebcam {
     public void decrementMinX() {
         pipeline.objectDetector.decrementMinAllowedX();
     }
-
     public void incrementMinX() {
         pipeline.objectDetector.incrementMinAllowedX();
     }
@@ -215,6 +213,8 @@ public class ObjectDetectorWebcam {
      }
 
     public Field.SpikePosition getSpikePosition() {
-        return pipeline.getSpikePosition();
+        synchronized (synchronizer) {
+            return pipeline.objectDetector.getSpikePosition();
+        }
     }
 }

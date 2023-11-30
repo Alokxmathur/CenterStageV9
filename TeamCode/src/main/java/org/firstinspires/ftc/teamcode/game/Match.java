@@ -113,7 +113,7 @@ public class Match {
             telemetry.addData("TrajectoryErr", getTrajectoryError());
             telemetry.addData("Arm", robot.getArmStatus());
             telemetry.addData("MiniArm", robot.getMiniArmStatus());
-            telemetry.addData("Camera", robot.getWebcam().getStatus());
+            telemetry.addData("Camera", robot.getVisionPortal().getStatus());
             updateDashBoard(status);
         }
         else {
@@ -196,7 +196,7 @@ public class Match {
         packet.put("LED", robot.getLEDStatus().toString());
         packet.put("TrajectoryErr", getTrajectoryError());
         packet.put("Arm", robot.getArmStatus());
-        packet.put("Camera", robot.getWebcam().getStatus());
+        packet.put("Vision", robot.getVisionPortal().getStatus());
 
         dashboard.sendTelemetryPacket(packet);
     }

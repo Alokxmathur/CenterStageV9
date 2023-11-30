@@ -46,7 +46,7 @@
     public static final double MINIARM_MIDDLE_POSITION = 0.5;
     public static final double MINIARM_DROP_POSITION = 0.93;
 
-    public static final double CAUTIOUS_SPEED = 0.35;
+    public static final double CAUTIOUS_SPEED = 0.5;
 
     //Robot center from back is five and half inches away
     public static double ROBOT_CENTER_FROM_BACK = 5.5 * Field.MM_PER_INCH;
@@ -126,8 +126,8 @@
     public static final String INOUT_TAKE_MOTOR = "inoutMotor";
     public static final double MAX_INOUT_SPEED = 1.0;
 
-    public static final int X_PIXEL_COUNT = 2304;
-    public static final int Y_PIXEL_COUNT = 1536;
+    public static final int X_PIXEL_COUNT = 1920;
+    public static final int Y_PIXEL_COUNT = 1080;
 
     public static final double IN_OUT_TAKE_IN_POWER = -1;
     public static final double IN_OUT_TAKE_OUT_POWER = 1;

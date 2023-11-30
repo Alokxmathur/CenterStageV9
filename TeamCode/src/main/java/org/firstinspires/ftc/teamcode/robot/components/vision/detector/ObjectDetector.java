@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.robot.components.vision.detector;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.game.Alliance;
 import org.firstinspires.ftc.teamcode.game.Field;
+import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -160,11 +162,11 @@ public class ObjectDetector {
     };
 
     HsvBounds[] greenPixelBounds = {
-            new HsvBounds(new Scalar(50, 50, 70), new Scalar(65, 255, 255))
+            new HsvBounds(new Scalar(35, 0, 0), new Scalar(65, 255, 255))
     };
 
     HsvBounds[] purplePixelBounds = {
-            new HsvBounds(new Scalar(127, 60, 120), new Scalar(150, 180, 255))
+            new HsvBounds(new Scalar(120, 50, 120), new Scalar(150, 255, 255))
     };
 
     HsvBounds[] whitePixelBounds = {
@@ -174,21 +176,30 @@ public class ObjectDetector {
     {
         DetectableObject redPropObject = new DetectableObject(ObjectType.RedProp, redPropBounds, 4, 4);
         redPropObject.setShortName("RP");
-        redPropObject.enable();
         this.addObject(redPropObject);
 
         DetectableObject bluePropObject = new DetectableObject(ObjectType.BlueProp, bluePropBounds, 4, 4);
         bluePropObject.setShortName("BP");
-        bluePropObject.enable();
         this.addObject(bluePropObject);
 
-        this.addObject(new DetectableObject(ObjectType.YellowPixel, yellowPixelBounds, 1, 10));
-        this.addObject(new DetectableObject(ObjectType.GreenPixel, greenPixelBounds, 1, 10));
-        this.addObject(new DetectableObject(ObjectType.PurplePixel, purplePixelBounds, 1, 10));
-        this.addObject(new DetectableObject(ObjectType.WhitePixel, whitePixelBounds, 1, 10));
+        DetectableObject yellowPixel = new DetectableObject(ObjectType.YellowPixel, yellowPixelBounds, 1, 10);
+        yellowPixel.setShortName("Yellow");
+        this.addObject(yellowPixel);
 
-        this.addObject(new DetectableObject(ObjectType.RedTape, redTapeBounds, 4, 5));
-        this.addObject(new DetectableObject(ObjectType.BlueTape, blueTapeBounds, 4, 5));
+        DetectableObject greenPixel = new DetectableObject(ObjectType.GreenPixel, greenPixelBounds, 1, 10);
+        greenPixel.setShortName("Green");
+        this.addObject(greenPixel);
+
+        DetectableObject purplePixel = new DetectableObject(ObjectType.PurplePixel, purplePixelBounds, 1, 10);
+        yellowPixel.setShortName("Purple");
+        this.addObject(purplePixel);
+
+        DetectableObject whitePixel = new DetectableObject(ObjectType.WhitePixel, whitePixelBounds, 1, 10);
+        yellowPixel.setShortName("White");
+        this.addObject(whitePixel);
+
+        //this.addObject(new DetectableObject(ObjectType.RedTape, redTapeBounds, 4, 5));
+        //this.addObject(new DetectableObject(ObjectType.BlueTape, blueTapeBounds, 4, 5));
     }
 
     DetectableObject objectAtCrossHair;
@@ -269,7 +280,7 @@ public class ObjectDetector {
         return status.toString();
     }
 
-    public Rect getRectangleOfInterest() {
+    public Rect getAreaOfInterest() {
         return areaOfInterest;
     }
 
@@ -279,6 +290,9 @@ public class ObjectDetector {
      * @return
      */
     public Map<ObjectType, DetectableObject> process(Mat rgbImage) {
+        if (crossHairPoint == null) {
+            setupCrossHair(rgbImage);
+        }
         //save image sent in HSV format
         Imgproc.cvtColor(rgbImage, mHsvMat, Imgproc.COLOR_RGB2HSV);
         //pyramid down twice
@@ -300,7 +314,8 @@ public class ObjectDetector {
                     new Scalar(minHue, minSaturation, minValue),
                     new Scalar(maxHue, maxSaturation, maxValue));
             objectAtCrossHair = new DetectableObject(ObjectType.CrossHair, hsvBoundsAtCrossHair, 0, 0);
-            this.addObject(objectAtCrossHair);
+            objectAtCrossHair.disable();
+            //this.addObject(objectAtCrossHair);
         }
         else {
             this.detectableObjects.remove(ObjectType.CrossHair);
@@ -329,6 +344,7 @@ public class ObjectDetector {
 
         //dilate image to get less sharp images
         Imgproc.dilate(mMask, mDilatedMask, nothingMat);
+        //clear previously found objects
         objectsFound.clear();
         //find the contours in the dilated image
         Imgproc.findContours(mDilatedMask, objectsFound, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -437,7 +453,7 @@ public class ObjectDetector {
         DetectableObject detectableObject = detectableObjects.get(objectType);
         if (detectableObject != null) {
             Rect boundingRectangle = Imgproc.boundingRect(detectableObject.getLargestObject());
-            return detectableObject.getWidth() * DetectorPipeline.FOCAL_LENGTH / boundingRectangle.height;
+            return detectableObject.getWidth() * ObjectDetectorPipeline.FOCAL_LENGTH / boundingRectangle.height;
         }
         else {
             return -1;
@@ -517,5 +533,25 @@ public class ObjectDetector {
                     lowerBound.toString(), upperBound.toString());
         }
     }
-
+    public Field.SpikePosition getSpikePosition () {
+        DetectableObject detectableObject;
+        if (Match.getInstance().getAlliance() == Alliance.Color.RED) {
+            detectableObject = getDetectableObjects().get(ObjectDetector.ObjectType.RedProp);
+        } else {
+            detectableObject = getDetectableObjects().get(ObjectDetector.ObjectType.BlueProp);
+        }
+        if (detectableObject != null) {
+            Rect rect = detectableObject.getBoundingRectangleOfLargestObject();
+            if (rect != null) {
+                if (rect.x > 1160) {
+                    lastSpikePosition = Field.SpikePosition.Right;
+                } else if (rect.x > 500) {
+                    lastSpikePosition = Field.SpikePosition.Middle;
+                } else {
+                    lastSpikePosition = Field.SpikePosition.Left;
+                }
+            }
+        }
+        return lastSpikePosition;
+    }
 }

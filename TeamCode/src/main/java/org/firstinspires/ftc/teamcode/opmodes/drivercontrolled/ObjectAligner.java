@@ -21,8 +21,8 @@ public class ObjectAligner extends ObjectFinderTeleOp {
     ObjectDetectorWebcam webcam;
     @Override
     public void start() {
-        super.startStreaming();
-        webcam = robot.getWebcam();
+       // super.startStreaming();
+        //webcam = robot.getWebcam();
     }
     @Override
     public void loop() {

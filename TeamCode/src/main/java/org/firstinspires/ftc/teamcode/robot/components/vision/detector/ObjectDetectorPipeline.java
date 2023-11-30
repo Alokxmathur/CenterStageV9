@@ -4,17 +4,13 @@ package org.firstinspires.ftc.teamcode.robot.components.vision.detector;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.game.Alliance;
-import org.firstinspires.ftc.teamcode.game.Field;
-import org.firstinspires.ftc.teamcode.game.Match;
-import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.*;
 
-public class DetectorPipeline extends OpenCvPipeline {
+public class ObjectDetectorPipeline extends OpenCvPipeline {
 
     public static final double CAMERA_OFFSET_FRONT = 11.25;
     public static final int FOCAL_LENGTH = 1500;
@@ -25,8 +21,6 @@ public class DetectorPipeline extends OpenCvPipeline {
 
 
     private final Object synchronizer = new Object();
-
-    Field.SpikePosition lastSpikePosition = Field.SpikePosition.NotSeen;
 
     /*
      * Red, Blue and Green color constants
@@ -112,14 +106,14 @@ public class DetectorPipeline extends OpenCvPipeline {
                 }
             }
             //Draw a rectangle depicting our area of interest
-            Rect areaOfInterest = objectDetector.getRectangleOfInterest();
+            Rect areaOfInterest = objectDetector.getAreaOfInterest();
             if (areaOfInterest != null) {
-                Imgproc.rectangle(inputImageRGB, objectDetector.getRectangleOfInterest(), GREEN, 5);
+                Imgproc.rectangle(inputImageRGB, objectDetector.getAreaOfInterest(), GREEN, 5);
                 Imgproc.putText(inputImageRGB,
                         String.format(Locale.getDefault(), "Max X) {%d, Max y) {%d",
-                                objectDetector.getRectangleOfInterest().width,
-                                objectDetector.getRectangleOfInterest().height),
-                        new Point(20, objectDetector.getRectangleOfInterest().height),
+                                objectDetector.getAreaOfInterest().width,
+                                objectDetector.getAreaOfInterest().height),
+                        new Point(20, objectDetector.getAreaOfInterest().height),
                         Imgproc.FONT_HERSHEY_SIMPLEX,
                         3,
                         RED,
@@ -146,29 +140,4 @@ public class DetectorPipeline extends OpenCvPipeline {
                 crossHairColor.val[0], crossHairColor.val[1], crossHairColor.val[2]);
         //return objectDetector.getStatus();
     }
-
-    public Field.SpikePosition getSpikePosition () {
-        synchronized (synchronizer) {
-                DetectableObject detectableObject = null;
-                if (Match.getInstance().getAlliance() == Alliance.Color.RED) {
-                    detectableObject = objectDetector.getDetectableObjects().get(ObjectDetector.ObjectType.RedProp);
-                } else {
-                    detectableObject = objectDetector.getDetectableObjects().get(ObjectDetector.ObjectType.BlueProp);
-                }
-                if (detectableObject == null) {
-                    return Field.SpikePosition.NotSeen;
-                } else {
-                    if (detectableObject.getYPositionOfLargestObject() > 1600) {
-                        lastSpikePosition = Field.SpikePosition.Left;
-                        return Field.SpikePosition.Left;
-                    } else if (detectableObject.getYPositionOfLargestObject() > 700) {
-                        lastSpikePosition = Field.SpikePosition.Middle;
-                        return Field.SpikePosition.Middle;
-                    } else {
-                        lastSpikePosition = Field.SpikePosition.Right;
-                        return Field.SpikePosition.Right;
-                    }
-                }
-            }
-        }
 }

@@ -25,7 +25,7 @@ public class DetectableObject {
     Scalar largestAreaMean;
     String shortName;
 
-    boolean disabled = true;
+    boolean disabled = false;
 
     public DetectableObject(ObjectDetector.ObjectType type, ObjectDetector.HsvBounds[] hsvBounds, double width, double height) {
         this.type = type;
@@ -172,8 +172,14 @@ public class DetectableObject {
      * @return
      */
     public Rect getBoundingRectangleOfLargestObject() {
-        if (getLargestObject() != null) {
-            return Imgproc.boundingRect(getLargestObject());
+        MatOfPoint largestObject = getLargestObject();
+        if (largestObject != null) {
+            try {
+                return Imgproc.boundingRect(largestObject);
+            }
+            catch (Throwable e) {
+                return null;
+            }
         } else {
             return null;
         }
@@ -186,8 +192,14 @@ public class DetectableObject {
      * @return
      */
     public RotatedRect getRotatedRectangleOfLargestObject() {
-        if (getLargestObject() != null) {
-            return Imgproc.minAreaRect(new MatOfPoint2f(getLargestObject().toArray()));
+        MatOfPoint largestObject = getLargestObject();
+        if (largestObject != null) {
+            try {
+                return Imgproc.minAreaRect(new MatOfPoint2f(largestObject.toArray()));
+            }
+            catch (Throwable e) {
+                return null;
+            }
         } else {
             return null;
         }

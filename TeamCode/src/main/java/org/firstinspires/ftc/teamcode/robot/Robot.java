@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.robot.components.DroneLauncher;
 import org.firstinspires.ftc.teamcode.robot.components.LED;
 import org.firstinspires.ftc.teamcode.robot.components.MiniArm;
 import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
-import org.firstinspires.ftc.teamcode.robot.components.vision.detector.ObjectDetectorWebcam;
+import org.firstinspires.ftc.teamcode.robot.components.vision.SilverTitansVisionPortal;
 import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.Operation;
 import org.firstinspires.ftc.teamcode.robot.operations.OperationThread;
@@ -84,13 +84,13 @@ public class Robot {
     OperationThread operationThreadSecondary;
     OperationThread operationThreadTertiary;
 
+    //Components
     DriveTrain driveTrain;
     LED led;
     Arm arm;
     DroneLauncher droneLauncher;
     MiniArm miniArm;
-
-    ObjectDetectorWebcam webcam;
+    SilverTitansVisionPortal visionPortal;
 
     boolean everythingButCamerasInitialized = false;
 
@@ -112,15 +112,19 @@ public class Robot {
         this.match = match;
 
         //initialize our components
-        initCameras();
+        initVision();
         initDriveTrain();
         this.led = new LED(hardwareMap);
+        /*
         if (match.getAlliance() == Alliance.Color.RED) {
             this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
         }
         else {
             this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
         }
+
+         */
+        this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
         this.droneLauncher = new DroneLauncher(hardwareMap);
 
         this.arm = new Arm(hardwareMap);
@@ -147,13 +151,13 @@ public class Robot {
         this.driveTrain = new DriveTrain(hardwareMap);
     }
 
-    public void initCameras() {
-        //initialize webcam
-        Match.log("Initializing Webcam");
-        telemetry.addData("Status", "Initializing Webcam, please wait");
+    public void initVision() {
+        //initialize Vision
+        Match.log("Initializing Vision Portal");
+        telemetry.addData("Status", "Initializing Vision Portal, please wait");
         telemetry.update();
-        this.webcam = new ObjectDetectorWebcam();
-        this.webcam.init(hardwareMap, telemetry);
+        this.visionPortal = new SilverTitansVisionPortal();
+        this.visionPortal.init(hardwareMap);
     }
 
     /**
@@ -173,9 +177,6 @@ public class Robot {
         }
         if (this.driveTrain != null) {
             this.driveTrain.stop();
-        }
-        if (this.webcam != null) {
-            this.webcam.stop();
         }
         Match.log(("Robot stopped"));
     }
@@ -438,12 +439,12 @@ public class Robot {
         return this.miniArm;
     }
 
-    public ObjectDetectorWebcam getWebcam() {
-        return this.webcam;
+    public SilverTitansVisionPortal getVisionPortal() {
+        return visionPortal;
     }
 
     public Field.SpikePosition getSpikePosition() {
-        return webcam.getSpikePosition();
+        return visionPortal.getSpikePosition();
     }
 
     public String getMiniArmStatus() {

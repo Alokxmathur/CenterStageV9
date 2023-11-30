@@ -25,29 +25,20 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.firstinspires.ftc.teamcode.robot.components.vision.detector.ObjectDetectorWebcam;
-
+import org.firstinspires.ftc.teamcode.robot.components.vision.SilverTitansVisionPortal;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 @TeleOp(name = "Phoebe: Object Finder", group = "Swanky")
 //@Disabled
 public class ObjectFinderTeleOp extends DriverControlledOperation {
-    ObjectDetectorWebcam webcam;
+    SilverTitansVisionPortal visionPortal;
 
     @Override
     public void init() {
         super.init();
-        webcam = robot.getWebcam();
+        visionPortal = robot.getVisionPortal();
     }
-    public void startStreaming() {
-        webcam.init(hardwareMap, telemetry);
-    }
-    @Override
-    public void start() {
-        startStreaming();
-    }
-
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
@@ -59,33 +50,33 @@ public class ObjectFinderTeleOp extends DriverControlledOperation {
 
                 telemetry.update();
                 if (gamepad2.left_stick_x < -0.2) {
-                    webcam.decrementMinX();
+                    visionPortal.decrementMinX();
                 }
                 if (gamepad2.left_stick_x > 0.2) {
-                    webcam.incrementMinX();
+                    visionPortal.incrementMinX();
                 }
                 if (gamepad2.right_stick_x < -0.2) {
-                    webcam.decrementMaxX();
+                    visionPortal.decrementMaxX();
                 }
                 if (gamepad2.right_stick_x > 0.2) {
-                    webcam.incrementMaxX();
+                    visionPortal.incrementMaxX();
                 }
 
                 if (gamepad2.left_stick_y < -0.2) {
-                    webcam.decrementMinY();
+                    visionPortal.decrementMinY();
                 }
                 if (gamepad2.left_stick_y > 0.2) {
-                    webcam.incrementMinY();
+                    visionPortal.incrementMinY();
                 }
                 if (gamepad2.right_stick_y < -0.2) {
-                    webcam.decrementMaxY();
+                    visionPortal.decrementMaxY();
                 }
                 if (gamepad2.right_stick_y > 0.2) {
-                    webcam.incrementMaxY();
+                    visionPortal.incrementMaxY();
                 }
 
 
-                webcam.manageObjectVisibility(gamepad1, gamepad2);
+                visionPortal.manageObjectVisibility(gamepad1, gamepad2);
 
                 match.updateTelemetry(telemetry, robot.getState());
             } catch (Throwable e) {

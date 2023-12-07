@@ -18,13 +18,14 @@ import org.firstinspires.ftc.teamcode.robot.operations.StrafeRightForDistanceOpe
 import org.firstinspires.ftc.teamcode.robot.operations.WaitOperation;
 
 public abstract class Autonomous extends AutonomousHelper {
-
-    double DISTANCE_TO_TRAVEL_TO_BACKDROP = 62.0 * Field.MM_PER_INCH;
     double DISTANCE_TO_MIDDLE_OF_SPIKES = 35.0 * Field.MM_PER_INCH;
     double DISTANCE_TO_BACK_INTO_PROP = 16*Field.MM_PER_INCH;
 
     @Override
     public void start() {
+        if (match.getAlliance() == Alliance.Color.NotSelected) {
+            return;
+        }
         Field.SpikePosition spikePosition = match.getSpikePosition();
 
         double bearingToBackdrop;
@@ -73,7 +74,7 @@ public abstract class Autonomous extends AutonomousHelper {
         state = new State("Approach backdrop");
 
         state.addSecondaryOperation(new LedOperation(robot.getLed(), RevBlinkinLedDriver.BlinkinPattern.YELLOW, "Yellow pixel mode"));
-        //state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit1, "Deposit position 1"));
+        //state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Deposit position 1"));
         //move forward towards middle spike
         //state.addPrimaryOperation(new DriveForDistanceOperation(DISTANCE_TO_TRAVEL_TO_BACKDROP, RobotConfig.CAUTIOUS_SPEED, "Approach backdrop"));
         states.add(state);
@@ -112,9 +113,9 @@ public abstract class Autonomous extends AutonomousHelper {
 
         state = new State("Drop yellow pixel");
         state.addPrimaryOperation(new BearingOperation(bearingToBackdrop, robot.getDriveTrain(), "face backdrop"));
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit1, "Ready to drop"));
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit2, "Drop pixel"));
-        state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Deposit1, "Go higher to drop pixel"));
+        state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Ready to drop"));
+        state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "Drop pixel"));
+        state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Go higher to drop pixel"));
         states.add(state);
 
 
@@ -126,7 +127,7 @@ public abstract class Autonomous extends AutonomousHelper {
         else {
             state.addPrimaryOperation(new StrafeLeftForDistanceOperation(36*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Navigate"));
         }
-        //state.addPrimaryOperation(new ArmOperation(robot.getArm(), ArmOperation.Type.Travel, "Move arm to travel position"));
+        //state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Travel, "Move arm to travel position"));
 
         states.add(state);
 

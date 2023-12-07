@@ -19,12 +19,21 @@ public class SilverTitansVisionPortal {
     AprilTagProcessor aprilTagProcessor;
     ObjectDetectionVisionProcessor objectDetectionVisionProcessor;
     public void init(HardwareMap hardwareMap) {
-        this.aprilTagProcessor = new AprilTagProcessor.Builder().setDrawCubeProjection(true).build();
+        this.aprilTagProcessor = new AprilTagProcessor.Builder().build();
+        // Adjust Image Decimation to trade-off detection-range for detection-rate.
+        // eg: Some typical detection data using a Logitech C920 WebCam
+        // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
+        // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
+        // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second
+        // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second
+        // Note: Decimation can be changed on-the-fly to adapt during a match.
+        aprilTagProcessor.setDecimation(2);
+
         this.objectDetectionVisionProcessor = new ObjectDetectionVisionProcessor();
         visionPortal = new org.firstinspires.ftc.vision.VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, RobotConfig.WEBCAM_ID))
+                //.setCameraResolution(new android.util.Size(RobotConfig.X_PIXEL_COUNT, RobotConfig.Y_PIXEL_COUNT))
                 .addProcessors(objectDetectionVisionProcessor, aprilTagProcessor)
-                .setCameraResolution(new android.util.Size(RobotConfig.X_PIXEL_COUNT, RobotConfig.Y_PIXEL_COUNT))
                 .build();
     }
     public Field.SpikePosition getSpikePosition() {
@@ -36,7 +45,7 @@ public class SilverTitansVisionPortal {
     /**
      * Add telemetry about AprilTag detections.
      */
-    private void telemetryAprilTag(Telemetry telemetry) {
+    public void telemetryAprilTag(Telemetry telemetry) {
         List<AprilTagDetection> currentDetections = aprilTagProcessor.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
 
@@ -113,5 +122,23 @@ public class SilverTitansVisionPortal {
 
     public List<AprilTagDetection>  getAprilTags() {
         return this.aprilTagProcessor.getDetections();
+    }
+    public void enableObjectDetection() {
+        this.visionPortal.setProcessorEnabled(objectDetectionVisionProcessor, true);
+    }
+    public void disableObjectDetection() {
+        this.visionPortal.setProcessorEnabled(objectDetectionVisionProcessor, false);
+    }
+    public void enableObjectDetection(ObjectDetector.ObjectType type) {
+        this.objectDetectionVisionProcessor.enableObject(type);
+    }
+    public void disableObjectDetection(ObjectDetector.ObjectType type) {
+        this.objectDetectionVisionProcessor.disableObject(type);
+    }
+    public void enableAprilTags() {
+        this.visionPortal.setProcessorEnabled(aprilTagProcessor, true);
+    }
+    public void disableAprilTags() {
+        this.visionPortal.setProcessorEnabled(aprilTagProcessor, false);
     }
 }

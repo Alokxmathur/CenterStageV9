@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.robot.operations;
 
-import org.firstinspires.ftc.teamcode.robot.RobotConfig;
+import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.components.Arm;
 
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -25,13 +24,14 @@ import java.util.Locale;
 public class ArmOperation extends Operation {
 
     public enum Type {
-        Intake, Travel, InterimTravel, Travel_From_Deposit, Deposit1, Deposit2, Deposit3
+        Intake, Travel, InterimTravel, Travel_From_Deposit, Deposit1, Deposit2, Deposit3, AutoDeposit,
+        Eat, ThrowUp, Abstain
     }
     Arm arm;
     Type type;
 
-    public ArmOperation(Arm arm, Type type, String title) {
-        this.arm = arm;
+    public ArmOperation(Type type, String title) {
+        this.arm = Match.getInstance().getRobot().getArm();
         this.type = type;
         this.title = title;
     }
@@ -42,7 +42,20 @@ public class ArmOperation extends Operation {
     }
 
     public boolean isComplete() {
-            return arm.isWithinRange();
+
+        switch (this.type) {
+            case Intake:
+            case Travel:
+            case InterimTravel:
+            case Deposit1:
+            case Deposit2:
+            case Deposit3:
+            case AutoDeposit:
+            {
+                return arm.isWithinRange();
+            }
+            default: return true;
+        }
     }
 
     @Override
@@ -54,8 +67,22 @@ public class ArmOperation extends Operation {
             case Deposit1:
             case Deposit2:
             case Deposit3:
+            case AutoDeposit:
             {
                 arm.setPositions(type);
+                break;
+            }
+            case Eat: {
+                arm.eat();
+                break;
+            }
+            case Abstain: {
+                arm.abstain();
+                break;
+            }
+            case ThrowUp: {
+                arm.throwUp();
+                break;
             }
         }
     }

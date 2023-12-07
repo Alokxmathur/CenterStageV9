@@ -15,9 +15,11 @@
 
     public static final String SHOULDER = "shoulder";
     public static final String ELBOW = "elbow";
+    public static final String INOUT_MOTOR = "inOutMotor";
     public static final String ROTATOR = "rotator";
     public static final String BUCKET = "wrist";
     public static final String SORTER = "sorter";
+    public static final String SHOULDER_LIMIT_SWITCH = "shoulderLimitSwitch";
 
     public static final String MINIARM = "miniArm";
 
@@ -31,6 +33,7 @@
     public static final double WRIST_TRAVEL_POSITION = .464;
 
     public static final double WRIST_DUMP_POSITION = 0.435;
+    public static final double WRIST_AUTO_DUMP_POSITION = .318;
 
     public static final double ROTATOR_STARTING_POSITION = 1;
     public static final double ROTATOR_TURNED_OVER_POSITION = .269;
@@ -63,20 +66,23 @@
     public static final double MAX_ELBOW_POWER = 1;
 
     public static final int ACCEPTABLE_SHOULDER_ERROR = 10;
-    public static final double MAX_SHOULDER_POWER = 1.0;
+    public static final double MAX_SHOULDER_POWER = 0.5;
 
     public static final int SHOULDER_STARTING_POSITION = 0;
     public static final int SHOULDER_INTAKE_POSITION = 0;
     public static final int SHOULDER_INTERIM_TRAVEL_POSITION = 0;
     public static final int SHOULDER_TRAVEL_POSITION = 560;
     public static final int SHOULDER_DEPOSIT_POSITION = 1730;
+    public static final int SHOULDER_AUTO_DEPOSIT_POSITION = 1300;
 
     public static final int ELBOW_STARTING_POSITION = 0;
     public static final int ELBOW_INTAKE_POSITION = -2272;
     public static final int ELBOW_TRAVEL_POSITION = 0;
-    public static final int ELBOW_INTERIM_TRAVEL_POSITION = -1000;
+    public static final int ELBOW_INTERIM_TRAVEL_POSITION = -600;
     public static final int ELBOW_INTERIM_DEPOSIT_POSITION = -1400;
     public static final int ELBOW_DEPOSIT_POSITION = -2365;
+    public static final int ELBOW_AUTO_DEPOSIT_POSITION = -1800;
+
 
 
     public static final ArmPosition ARM_STARTING_POSITION = new ArmPosition(
@@ -122,14 +128,13 @@
             WRIST_INTERIM_TRAVEL_POSITION,
             SORTER_LEFT_POSITION);
 
-
-    public static final String INOUT_TAKE_MOTOR = "inoutMotor";
-    public static final double MAX_INOUT_SPEED = 1.0;
+    public static final ArmPosition ARM_AUTO_DEPOSIT_POSITION = new ArmPosition(
+            SHOULDER_AUTO_DEPOSIT_POSITION,
+            ELBOW_AUTO_DEPOSIT_POSITION,
+            ROTATOR_TURNED_OVER_POSITION,
+            WRIST_AUTO_DUMP_POSITION,
+            SORTER_LEFT_POSITION);
 
     public static final int X_PIXEL_COUNT = 1920;
     public static final int Y_PIXEL_COUNT = 1080;
-
-    public static final double IN_OUT_TAKE_IN_POWER = -1;
-    public static final double IN_OUT_TAKE_OUT_POWER = 1;
-    public static final double IN_OUT_TAKE_STOP_POWER = 0;
  }

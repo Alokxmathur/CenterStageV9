@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.robot.operations;
 
-import com.acmerobotics.roadrunner.drive.Drive;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,21 +15,18 @@ import java.util.Locale;
  */
 public class DriveToAprilTag extends Operation {
 
-    final double SPEED_GAIN  =  0.02  ;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    final double STRAFE_GAIN =  0.015 ;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    final double TURN_GAIN   =  0.01  ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+    public static final double SPEED_GAIN  =  0.02  ;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    public static final double STRAFE_GAIN =  0.015 ;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    public static final double TURN_GAIN   =  0.01  ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
-    final double MAX_AUTO_TURN  = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
+    public static final double MAX_AUTO_TURN  = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
 
     protected double distance;
     protected double speed;
     protected int aprilTagId;
     protected DriveTrain driveTrain;
 
-    boolean targetFound;
     AprilTagDetection desiredTag;
-    double drive, turn, strafe;
-
     /**
      * Create an operation to drive in the specified heading
      * @param distance - the distance to be away from the april tag
@@ -56,9 +50,23 @@ public class DriveToAprilTag extends Operation {
     }
 
     public boolean isComplete() {
-        findTarget();
-        drive = turn = strafe = 0;
-        if (targetFound) {
+        return driveToAprilTag(aprilTagId, speed, distance, driveTrain);
+    }
+
+    /**
+     * Drive the robot so that it is aligned with a specified april tag id and is within the
+     * specified distance from it
+     * @param aprilTagId
+     * @param speed
+     * @param distance - in mms
+     * @param driveTrain
+     * @return
+     */
+    public static boolean driveToAprilTag(int aprilTagId, double speed, double distance, DriveTrain driveTrain) {
+        double drive = 0, turn = 0, strafe = 0;
+        boolean arrived = false;
+        AprilTagDetection desiredTag;
+        if ((desiredTag = findTarget(aprilTagId)) != null) {
             // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
             double rangeError = (desiredTag.ftcPose.range - distance / Field.MM_PER_INCH);
             double headingError = desiredTag.ftcPose.bearing;
@@ -68,19 +76,19 @@ public class DriveToAprilTag extends Operation {
             drive = Range.clip(rangeError * SPEED_GAIN, -speed, speed);
             turn = Range.clip(headingError * TURN_GAIN, -speed * .6, speed * .6);
             strafe = Range.clip(-yawError * STRAFE_GAIN, -speed, speed);
-            Match.log(this.title + ", distance away:" + rangeError);
 
             /*
-            We consider we have arrived if we are within .5 inches of the desired distance,
-            within .5 inches of left to right and within 1 degree of facing the aprilTag
+            We consider we have arrived if we are within 1 inch of the desired distance,
+            within 1 inches of left to right and within 2 degrees of facing the aprilTag
              */
-            if (Math.abs(rangeError) < .5 && Math.abs(yawError) < .5 && Math.abs(headingError) < 1) {
-                driveTrain.stop();
-                return true;
+            if (Math.abs(rangeError) < 1 && Math.abs(yawError) < 1 && Math.abs(headingError) < 2) {
+                arrived = true;
             }
         }
-        moveRobot(drive, strafe, turn);
-        return false;
+        if (!arrived) {
+            moveRobot(drive, strafe, turn, driveTrain);
+        }
+        return arrived;
 
     }
 
@@ -101,25 +109,28 @@ public class DriveToAprilTag extends Operation {
         return this.distance;
     }
 
-    private void findTarget() {
-        targetFound = false;
+    /**
+     * Return an april tag detection if it is seen. Return null if it is not
+     * @param tagToFind
+     * @return
+     */
+    public static AprilTagDetection findTarget(int tagToFind) {
         // Step through the list of detected tags and look for a matching tag
         List<AprilTagDetection> currentDetections = Match.getInstance().getRobot().getVisionPortal().getAprilTags();
+        Match.log("Found " + currentDetections.size() + " april tags");
         if (currentDetections.size() > 0) {
-            for (AprilTagDetection detection : currentDetections) {
+            for (AprilTagDetection aprilTag : currentDetections) {
                 // Look to see if we have size info on this tag.
-                if (detection.metadata != null) {
+                if (aprilTag.metadata != null) {
                     //  Check to see if we want to track towards this tag.
-                    if (detection.id == aprilTagId) {
+                    if (aprilTag.id == tagToFind) {
                         // Yes, we want to use this tag.
-                        targetFound = true;
-                        desiredTag = detection;
-                        Match.log("Found target, id=" + aprilTagId);
-                        break;  // don't look any further.
+                        return aprilTag;  // don't look any further.
                     }
                 }
             }
         }
+        return null;
     }
     /**
      * Move robot according to desired axes motions
@@ -130,12 +141,12 @@ public class DriveToAprilTag extends Operation {
      * <p>
      * Positive Yaw is counter-clockwise
      */
-    public void moveRobot(double x, double y, double yaw) {
+    public static void moveRobot(double forward, double strafe, double rotate, DriveTrain driveTrain) {
         // Calculate wheel powers.
-        double leftFrontPower    =  x -y -yaw;
-        double rightFrontPower   =  x +y +yaw;
-        double leftBackPower     =  x +y -yaw;
-        double rightBackPower    =  x -y +yaw;
+        double leftFrontPower    =  forward -strafe -rotate;
+        double rightFrontPower   =  forward +strafe +rotate;
+        double leftBackPower     =  forward +strafe -rotate;
+        double rightBackPower    =  forward -strafe +rotate;
 
         // Normalize wheel powers to be less than 1.0
         double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));

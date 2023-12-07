@@ -1,12 +1,5 @@
 package org.firstinspires.ftc.teamcode.game;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-
-import org.firstinspires.ftc.teamcode.robot.RobotConfig;
-
-import static org.firstinspires.ftc.teamcode.roadrunner.drive.SilverTitansMecanumDrive.accurateTrajectoryBuilder;
-
 /**
  * Created by Silver Titans on 9/16/17.
  */
@@ -17,7 +10,7 @@ public class Field {
     public static final Object mutex = new Object();
 
     public enum StartingPosition {
-        Left, Right
+        Left, Right, NotSelected
     }
     public enum SpikePosition {
         Left, Middle, Right, NotSeen

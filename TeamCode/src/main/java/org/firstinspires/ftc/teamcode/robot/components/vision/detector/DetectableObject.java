@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.robot.components.vision.detector;
 
-import org.opencv.core.*;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -22,13 +25,13 @@ public class DetectableObject {
     double width;
     double height;
     int largestAreaIndex;
-    Scalar largestAreaMean;
     String shortName;
 
-    boolean disabled = false;
+    boolean disabled = true;
 
-    public DetectableObject(ObjectDetector.ObjectType type, ObjectDetector.HsvBounds[] hsvBounds, double width, double height) {
+    public DetectableObject(ObjectDetector.ObjectType type, String shortName, ObjectDetector.HsvBounds[] hsvBounds, double width, double height) {
         this.type = type;
+        this.setShortName(shortName);
         this.hsvBounds = hsvBounds;
         this.width = width;
         this.height = height;
@@ -76,7 +79,6 @@ public class DetectableObject {
         }
         this.foundObjects = new ArrayList<>();
         largestArea = 0;
-        largestAreaMean = new Scalar(0, 0, 0);
     }
 
     /**
@@ -87,12 +89,11 @@ public class DetectableObject {
      * @param objectFound
      * @param area        - are of the object found
      */
-    public void addFoundObject(MatOfPoint objectFound, double area, Scalar mean) {
+    public void addFoundObject(MatOfPoint objectFound, double area) {
         this.foundObjects.add(objectFound);
         if (area > largestArea) {
             largestAreaIndex = this.foundObjects.size() - 1;
             largestArea = area;
-            largestAreaMean = mean;
         }
     }
 
@@ -205,26 +206,8 @@ public class DetectableObject {
         }
     }
 
-    /**
-     * Return the mean hsv values of the largest object
-     *
-     * @return
-     */
-    public Scalar getMeanOfLargestObject() {
-        if (getLargestObject() != null) {
-            return largestAreaMean;
-        } else {
-            return new Scalar(0, 0, 0);
-        }
-    }
-
-
     public double getLargestArea() {
         return largestArea;
-    }
-
-    public Scalar getLargestAreaMean() {
-        return largestAreaMean;
     }
 
     /**

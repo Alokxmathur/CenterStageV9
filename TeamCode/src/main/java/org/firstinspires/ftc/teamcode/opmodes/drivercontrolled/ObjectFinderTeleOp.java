@@ -21,11 +21,11 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.drivercontrolled;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.robot.components.vision.SilverTitansVisionPortal;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 

@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.teamcode.game.Field;
-import org.firstinspires.ftc.teamcode.game.Match;
+import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 
@@ -19,10 +19,7 @@ import java.util.Map;
 
 
 public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vision.VisionProcessor {
-
-    public static final Object synchronizer = new Object();
-
-    ObjectDetector objectDetector = null;
+    ObjectDetector objectDetector = new ObjectDetector(0, RobotConfig.X_PIXEL_COUNT, 500, RobotConfig.Y_PIXEL_COUNT);
     private final TextPaint textPaint = new TextPaint();
     private final Paint greenLinePaint = new Paint();
     private final Paint redLinePaint = new Paint();
@@ -61,15 +58,11 @@ public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vis
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
-        objectDetector = new ObjectDetector(
-                0, width, 500, height, ObjectDetectorWebcam.MINIMUM_AREA);
     }
 
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos) {
-        synchronized (synchronizer) {
-            return objectDetector.process(frame);
-        }
+        return objectDetector.process(frame);
     }
 
     @Override
@@ -80,19 +73,16 @@ public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vis
         //draw rectangle around area of interest
         Rect areaOfInterest = objectDetector.getAreaOfInterest();
         drawRectangle(canvas, scaleBmpPxToCanvasPx, redLinePaint, areaOfInterest);
-
-        synchronized (synchronizer) {
-            Map<ObjectDetector.ObjectType, DetectableObject> detectedObjects = (Map<ObjectDetector.ObjectType, DetectableObject>) userContext;
-            //paint information about each of the largest objects seen
-            for (DetectableObject detectableObject : detectedObjects.values()) {
-                if (detectableObject.getType() == ObjectDetector.ObjectType.CrossHair) {
-                    paintObject(canvas, scaleBmpPxToCanvasPx, blueLinePaint, textPaint, detectableObject);
-                }
-                else {
-                    paintObject(canvas, scaleBmpPxToCanvasPx, greenLinePaint, textPaint, detectableObject);
-                }
+        Map<ObjectDetector.ObjectType, DetectableObject> detectedObjects = (Map<ObjectDetector.ObjectType, DetectableObject>) userContext;
+        //paint information about each of the largest objects seen
+        for (DetectableObject detectableObject : detectedObjects.values()) {
+            if (detectableObject.getType() == ObjectDetector.ObjectType.CrossHair) {
+                paintObject(canvas, scaleBmpPxToCanvasPx, blueLinePaint, textPaint, detectableObject);
+            } else {
+                paintObject(canvas, scaleBmpPxToCanvasPx, greenLinePaint, textPaint, detectableObject);
             }
         }
+
     }
 
     private static void paintObject(Canvas canvas, float scaleBmpPxToCanvasPx, Paint linePaint, TextPaint textPaint, DetectableObject detectableObject) {
@@ -122,77 +112,67 @@ public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vis
     }
 
     public Field.SpikePosition getSpikePosition() {
-        synchronized (synchronizer) {
-            if (objectDetector != null) {
-                return objectDetector.getSpikePosition();
-            }
-            Match.log("No object detector");
-            return Field.SpikePosition.NotSeen;
-        }
+        return objectDetector.getSpikePosition();
     }
+
     public void decrementMinX() {
         objectDetector.decrementMinAllowedX();
     }
+
     public void incrementMinX() {
         objectDetector.incrementMinAllowedX();
     }
+
     public void decrementMaxX() {
         objectDetector.decrementMaxAllowedX();
     }
+
     public void incrementMaxX() {
         objectDetector.incrementMaxAllowedX();
     }
+
     public void decrementMinY() {
         objectDetector.decrementMinAllowedY();
     }
+
     public void incrementMinY() {
         objectDetector.incrementMinAllowedY();
     }
+
     public void decrementMaxY() {
         objectDetector.decrementMaxAllowedY();
     }
+
     public void incrementMaxY() {
         objectDetector.incrementMaxAllowedY();
     }
+
     public double getXPositionOfLargestObject(ObjectDetector.ObjectType objectType) {
-        synchronized (synchronizer) {
-            return objectDetector.getXPositionOfLargestObject(objectType);
-        }
+        return objectDetector.getXPositionOfLargestObject(objectType);
     }
+
     public double getYPositionOfLargestObject(ObjectDetector.ObjectType objectType) {
-        synchronized (synchronizer) {
-            return objectDetector.getYPositionOfLargestObject(objectType);
-        }
+        return objectDetector.getYPositionOfLargestObject(objectType);
     }
 
     public double getWidthOfLargestObject(ObjectDetector.ObjectType objectType) {
-        synchronized (synchronizer) {
-            return objectDetector.getWidthOfLargestObject(objectType);
-        }
+        return objectDetector.getWidthOfLargestObject(objectType);
     }
 
     public double getHeightOfLargestObject(ObjectDetector.ObjectType objectType) {
-        synchronized (synchronizer) {
-            return objectDetector.getHeightOfLargestObject(objectType);
-        }
+        return objectDetector.getHeightOfLargestObject(objectType);
     }
 
     public boolean seeingObject(ObjectDetector.ObjectType objectName) {
-        synchronized (synchronizer) {
-            return getLargestArea(objectName) > 0;
-        }
+        return getLargestArea(objectName) > 0;
     }
 
     public double getLargestArea(ObjectDetector.ObjectType objectName) {
-        synchronized (synchronizer) {
-            return objectDetector.getLargestArea(objectName);
-        }
+        return objectDetector.getLargestArea(objectName);
     }
 
     public double getDistanceToLargestObject(ObjectDetector.ObjectType objectType) {
-        synchronized (synchronizer) {
-            return objectDetector.getDistanceFromCameraOfLargestObject(objectType);
-        }
+        return objectDetector.getDistanceFromCameraOfLargestObject(objectType);
     }
 
     public void manageVisibility(Gamepad gamepad1, Gamepad gamepad2) {
@@ -200,16 +180,15 @@ public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vis
     }
 
     public String getStatus() {
-        return "";
-        /*
-        synchronized (synchronizer) {
-            if (objectDetector != null) {
-                return objectDetector.getStatus();
-            } else {
-                return "Not ready";
-            }
-        }
-        */
+        return objectDetector.getStatus();
+    }
+
+    public void enableObject(ObjectDetector.ObjectType type) {
+        this.objectDetector.enableObject(type);
+    }
+
+    public void disableObject(ObjectDetector.ObjectType type) {
+        this.objectDetector.disableObject(type);
     }
 
 }

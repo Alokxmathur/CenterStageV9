@@ -18,9 +18,9 @@ import org.firstinspires.ftc.teamcode.robot.components.MiniArm;
 import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
 import org.firstinspires.ftc.teamcode.robot.components.vision.SilverTitansVisionPortal;
 import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
+import org.firstinspires.ftc.teamcode.robot.operations.DriveToAprilTag;
 import org.firstinspires.ftc.teamcode.robot.operations.Operation;
 import org.firstinspires.ftc.teamcode.robot.operations.OperationThread;
-import org.firstinspires.ftc.teamcode.robot.operations.WaitOperation;
 
 /**
  * This class represents our robot.
@@ -114,8 +114,8 @@ public class Robot {
         //initialize our components
         initVision();
         initDriveTrain();
+
         this.led = new LED(hardwareMap);
-        /*
         if (match.getAlliance() == Alliance.Color.RED) {
             this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
         }
@@ -123,8 +123,6 @@ public class Robot {
             this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
         }
 
-         */
-        this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
         this.droneLauncher = new DroneLauncher(hardwareMap);
 
         this.arm = new Arm(hardwareMap);
@@ -194,24 +192,6 @@ public class Robot {
     }
 
     /**
-     * Returns the current x value of robot's center in mms
-     *
-     * @return the current x position in mms
-     */
-    public double getCurrentX() {
-        return 0;//this.vslamCamera.getPoseEstimate().getX() * Field.MM_PER_INCH;
-    }
-
-    /**
-     * Returns the current y value of robot's center in mms
-     *
-     * @return the current y position in mms
-     */
-    public double getCurrentY() {
-        return 0;//this.vslamCamera.getPoseEstimate().getY() * Field.MM_PER_INCH;
-    }
-
-    /**
      * Returns the current heading of the robot in radians
      *
      * @return the heading in radians
@@ -234,10 +214,6 @@ public class Robot {
 
     public boolean tertiaryOperationsCompleted() {
         return !this.operationThreadTertiary.hasEntries();
-    }
-
-    public boolean havePosition() {
-        return true;//vslamCamera.havePosition();
     }
 
     public String getState() {
@@ -264,9 +240,9 @@ public class Robot {
         }
 
         this.handleDriveTrain(gamePad1);
-        handleIntake(gamePad1, gamePad2);
+        handleArm(gamePad1, gamePad2);
 
-        if (gamePad2.right_trigger > 0.2) {
+        if (gamePad2.right_bumper) {
             droneLauncher.launchDrone();
         }
         else if (gamePad2.left_bumper) {
@@ -274,24 +250,63 @@ public class Robot {
         }
     }
 
+    /**
+     * Handle driving of the robot
+     * If the left or right bumper or both are pressed, the robot tries to align with and get
+     * to be 10 inches from an april tag, if it is seen of course.
+     * Left bumper aligns with alliance specific left april tag, right aligns with alliance specific
+     * right april tag and if both bumpers are pressed, the alignment is with the middle
+     * alliance specific april tag
+     * If no bumpers are pressed, the left joystick y direction determines forward movement,
+     * left joystick x direction determines strafing and the right joy stick x direction
+     * determines rotation
+     * Right trigger pushing moves robot in turbo mode, left trigger in super turbo mode
+     * @param gamePad1 - game pad 1
+     */
     public void handleDriveTrain(Gamepad gamePad1) {
         if (this.primaryOperationsCompleted()) {
-            double multiplier = gamePad1.right_trigger > 0.1 ? .6 : (gamePad1.left_trigger > 0.1 ? 1 : .3);
-            double x = Math.pow(gamePad1.left_stick_x, 5) * multiplier; // Get left joystick's x-axis value.
-            double y = -Math.pow(gamePad1.left_stick_y, 5) * multiplier; // Get left joystick's y-axis value.
+            if (gamePad1.left_bumper || gamePad1.right_bumper) {
+                int tagId;
+                //trying to align with an april tag
 
-            double rotation = Math.pow(gamePad1.right_stick_x, 5) * multiplier; // Get right joystick's x-axis value for rotation
+                //if both left and right bumpers are pressed align with the middle april tag
+                if (gamePad1.left_bumper && gamePad1.right_bumper) {
+                    tagId = 2;
+                }
+                //if only left bumper is pressed, align with the left tag
+                else if (gamePad1.left_bumper) {
+                    tagId = 1;
+                }
+                //if only right bumper is pressed, align with the right tag
+                else {
+                    tagId = 3;
+                }
+                if (Match.getInstance().getAlliance() == Alliance.Color.RED) {
+                    //the tag ids for red back drop start from 4 and go onto 6
+                    tagId += 3;
+                }
+                //align with april tag, staying 7 inches from it
+                DriveToAprilTag.driveToAprilTag(tagId, RobotConfig.CAUTIOUS_SPEED, 7*Field.MM_PER_INCH, driveTrain);
+            }
+            else {
+                //regular driving
+                double multiplier = gamePad1.right_trigger > 0.1 ? .6 : (gamePad1.left_trigger > 0.1 ? 1 : .3);
+                double x = Math.pow(gamePad1.left_stick_x, 5) * multiplier; // Get left joystick's x-axis value.
+                double y = -Math.pow(gamePad1.left_stick_y, 5) * multiplier; // Get left joystick's y-axis value.
 
-            this.driveTrain.drive(Math.atan2(x, y), Math.hypot(x, y), rotation);
+                double rotation = Math.pow(gamePad1.right_stick_x, 5) * multiplier; // Get right joystick's x-axis value for rotation
+
+                this.driveTrain.drive(Math.atan2(x, y), Math.hypot(x, y), rotation);
+            }
         }
     }
 
     /**
-     * Handle the intake
-     * @param gamePad1
-     * @param gamePad2
+     * Handle the arm
+     * @param gamePad1 - game pad 1
+     * @param gamePad2 - game pad 2
      */
-    public void handleIntake(Gamepad gamePad1, Gamepad gamePad2) {
+    public void handleArm(Gamepad gamePad1, Gamepad gamePad2) {
         /*
             gamePad 1 dpad up/down move rotator incrementally
         */
@@ -314,72 +329,53 @@ public class Robot {
             gamePad 2 dpad left/right manage bucket / sorter
         */
         if (gamePad2.dpad_left) {
-            if (gamePad2.left_trigger > 0.2) {
-                arm.sorterLeft();
-            }
-            else {
-                arm.intakePositionWrist();
-            }
+            arm.intakePositionWrist();
         }
         if (gamePad2.dpad_right) {
-            if (gamePad2.left_trigger > 0.2) {
-                arm.sorterRight();
-            }
-            else {
                 arm.dumpPositionWrist();
-            }
+        }
+        //If both gamePad2 left and right trigger are pressed, stop inout motor
+        if (gamePad2.left_trigger > .2 && gamePad2.right_trigger > .2) {
+            arm.abstain();
+        }
+        //If gamePad2 left trigger is pressed, start consuming pixels
+        else if (gamePad2.left_trigger > .2) {
+            arm.eat();
+        }
+        //If gamePad2 right trigger is pressed, start spitting out pixels
+        else if (gamePad2.right_trigger > .2) {
+            arm.throwUp();
         }
         /*
             gamePad 2 dpad up/down open/close claw incrementally
         */
         if (gamePad2.dpad_up) {
-            if (gamePad2.left_trigger > 0.2) {
-                arm.leftSorterIncrementally();
-            }
-            else {
-                arm.lowerBucketIncrementally();
-            }
+            arm.lowerBucketIncrementally();
         } else if (gamePad2.dpad_down) {
-            if (gamePad2.left_trigger > 0.2) {
-                arm.rightSorterIncrementally();
-            }
-            else {
-                arm.raiseBucketIncrementally();
-            }
+            arm.raiseBucketIncrementally();
         }
-        if (allOperationsCompleted()) {
+        if (secondaryOperationsCompleted()) {
             if (gamePad2.a) {
-                queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.Intake, "Assume Intake"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Intake, "Assume Intake"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Eat, "Start intake"));
             }
             if (gamePad2.b) {
-                queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.InterimTravel, "Interim Travel Position"));
-                queueSecondaryOperation(new WaitOperation(1000, "Wait a sec"));
-                queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.Travel, "Travel Position"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.InterimTravel, "Interim Travel Position"));
+                //queueSecondaryOperation(new WaitOperation(1000, "Wait a sec"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Travel, "Travel Position"));
             }
             if (gamePad2.y) {
-                queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.Deposit1, "Assume dump position"));
-                queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.Deposit2, "Assume dump position"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Assume dump position"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "Assume dump position"));
             }
             if (gamePad2.x) {
-                queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.Deposit3, "Deposit pixels"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit3, "Deposit pixels"));
+            }
+            if (gamePad1.a) {
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.AutoDeposit, "Auto Deposit pixels"));
             }
         }
-
-        /*
-        if (gamePad2.left_bumper) {
-            miniArm.decrementalDrop();
-        }
-        if (gamePad2.right_bumper) {
-            miniArm.incrementalUp();
-        }
-        if (gamePad2.left_trigger > .2) {
-            miniArm.goDrop();
-        }
-        if (gamePad2.right_trigger > .2) {
-            miniArm.goUp();
-        }
-
-         */
 
         if (secondaryOperationsCompleted()) {
             //handle shoulder movement
@@ -391,14 +387,9 @@ public class Robot {
             if (Math.abs(gamePad2.right_stick_y) > 0.05) {
                 this.arm.setElbowPower(Math.pow(gamePad2.right_stick_y, 7));
             } else {
-                    this.arm.retainElbow();
+                this.arm.retainElbow();
             }
         }
-    }
-
-    public void setInitialPose(Pose2d pose) {
-        //this.driveTrain.setLocalizer(vslamCamera);
-        //this.vslamCamera.setCurrentPose(pose);
     }
 
     public void reset() {
@@ -409,6 +400,7 @@ public class Robot {
         if (this.arm != null) {
             this.arm.ensureMotorDirections();
         }
+        initVision();
     }
 
     public Pose2d getPose() {

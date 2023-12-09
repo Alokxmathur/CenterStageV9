@@ -116,8 +116,9 @@ public class DetectableObject {
      * @return
      */
     public int getYPositionOfLargestObject() {
-        if (getLargestObject() != null) {
-            Rect boundingRectangle = Imgproc.boundingRect(getLargestObject());
+        MatOfPoint largestObject = getLargestObject();
+        if (largestObject != null) {
+            Rect boundingRectangle = Imgproc.boundingRect(largestObject);
             return boundingRectangle.y + boundingRectangle.height / 2;
         } else {
             return -1;
@@ -130,8 +131,9 @@ public class DetectableObject {
      * @return
      */
     public int getXPositionOfLargestObject() {
-        if (getLargestObject() != null) {
-            Rect boundingRectangle = Imgproc.boundingRect(getLargestObject());
+        MatOfPoint largestObject = getLargestObject();
+        if (largestObject != null) {
+            Rect boundingRectangle = Imgproc.boundingRect(largestObject);
             return boundingRectangle.x + boundingRectangle.width / 2;
         } else {
             return -1;

@@ -6,41 +6,46 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 
 @Config
 @TeleOp
 public class PIDF_Elbow extends OpMode {
-    private PIDController controller;
-    public static double p = 0, i = 0, d = 0;
-    public static double f = 0;
+    public static double p = 0, i = 0, d = 0, f = 0;
 
-    public static double target = 0;
+    public static int target = 0;
 
     private final double ticks_in_degree = 288 / 360 * 18;
 
     private DcMotorEx armMotor;
+    private DcMotorControllerEx motorControllerEx;
+    int motorIndex;
     @Override
     public void init() {
-        controller = new PIDController(p, i, d);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         armMotor = hardwareMap.get(DcMotorEx.class, RobotConfig.ELBOW);
+        // Get a reference to the motor controller and cast it as an extended functionality controller.
+        motorControllerEx = (DcMotorControllerEx) armMotor.getController();
+        motorIndex = ((DcMotorEx)armMotor).getPortNumber();
     }
 
     @Override
     public void loop() {
-        controller.setPID(p, i, d);
+        // change coefficients
+        PIDFCoefficients pidfNew = new PIDFCoefficients(p, i, d, f);
+        motorControllerEx.setPIDFCoefficients(motorIndex, DcMotor.RunMode.RUN_USING_ENCODER, pidfNew);
         int armPosition = armMotor.getCurrentPosition();
-        double pid = controller.calculate(armPosition, target);
-        double ff = Math.cos(Math.toRadians(target/ticks_in_degree)) * f;
 
-        double power = pid + ff;
-        armMotor.setPower(power);
+        armMotor.setTargetPosition(target);
 
         telemetry.addData("pos ", armPosition);
         telemetry.addData("target ", target);
+
         telemetry.update();
     }
 }

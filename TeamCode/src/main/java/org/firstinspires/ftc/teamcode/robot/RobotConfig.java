@@ -20,6 +20,8 @@
     public static final String BUCKET = "wrist";
     public static final String SORTER = "sorter";
     public static final String SHOULDER_LIMIT_SWITCH = "shoulderLimitSwitch";
+    public static final String ELBOW_LIMIT_SWITCH = "elbowLimitSwitch";
+
 
     public static final String MINIARM = "miniArm";
 
@@ -28,14 +30,14 @@
     public static final double WRIST_STARTING_POSITION = .9;
     public static final double WRIST_DEPOSIT_POSITION_1 = .929;
     public static final double WRIST_DEPOSIT_POSITION_3 = .45;
-    public static final double WRIST_INTAKE_POSITION = .699;
+    public static final double WRIST_INTAKE_POSITION = .665;
     public static final double WRIST_INTERIM_TRAVEL_POSITION = .699;
     public static final double WRIST_TRAVEL_POSITION = .464;
-
     public static final double WRIST_DUMP_POSITION = 0.435;
     public static final double WRIST_AUTO_DUMP_POSITION = .318;
+    public static final double ROTATOR_STARTING_POSITION = .725;
+    public static final double ROTATOR_INTAKE_POSITION = .865;
 
-    public static final double ROTATOR_STARTING_POSITION = 1;
     public static final double ROTATOR_TURNED_OVER_POSITION = .269;
 
     public static final double SORTER_LEFT_POSITION = 0.66;
@@ -69,15 +71,15 @@
     public static final double MAX_SHOULDER_POWER = 0.5;
 
     public static final int SHOULDER_STARTING_POSITION = 0;
-    public static final int SHOULDER_INTAKE_POSITION = 0;
+    public static final int SHOULDER_INTAKE_POSITION = 390;
     public static final int SHOULDER_INTERIM_TRAVEL_POSITION = 0;
     public static final int SHOULDER_TRAVEL_POSITION = 560;
     public static final int SHOULDER_DEPOSIT_POSITION = 1730;
     public static final int SHOULDER_AUTO_DEPOSIT_POSITION = 1300;
 
     public static final int ELBOW_STARTING_POSITION = 0;
-    public static final int ELBOW_INTAKE_POSITION = -2272;
-    public static final int ELBOW_TRAVEL_POSITION = 0;
+    public static final int ELBOW_INTAKE_POSITION = -2110;
+    public static final int ELBOW_TRAVEL_POSITION = -1500;
     public static final int ELBOW_INTERIM_TRAVEL_POSITION = -600;
     public static final int ELBOW_INTERIM_DEPOSIT_POSITION = -1400;
     public static final int ELBOW_DEPOSIT_POSITION = -2365;
@@ -94,14 +96,14 @@
     public static final ArmPosition ARM_INTAKE_POSITION = new ArmPosition(
             SHOULDER_INTAKE_POSITION,
             ELBOW_INTAKE_POSITION,
-            ROTATOR_STARTING_POSITION,
+            ROTATOR_INTAKE_POSITION,
             WRIST_INTAKE_POSITION,
             SORTER_LEFT_POSITION);
     public static final ArmPosition ARM_DEPOSIT_POSITION_1 = new ArmPosition(
-            SHOULDER_DEPOSIT_POSITION,
-            ELBOW_INTERIM_DEPOSIT_POSITION,
-            ROTATOR_TURNED_OVER_POSITION,
-            WRIST_TRAVEL_POSITION,
+            780,
+            -1440,
+            0,
+            .274,
             SORTER_LEFT_POSITION);
     public static final ArmPosition ARM_DEPOSIT_POSITION_2 = new ArmPosition(
             SHOULDER_DEPOSIT_POSITION,
@@ -116,10 +118,10 @@
             WRIST_DEPOSIT_POSITION_3,
             SORTER_LEFT_POSITION);
     public static final ArmPosition ARM_TRAVEL_POSITION = new ArmPosition(
-            SHOULDER_TRAVEL_POSITION,
+            SHOULDER_INTAKE_POSITION,
             ELBOW_TRAVEL_POSITION,
-            ROTATOR_TURNED_OVER_POSITION,
-            WRIST_TRAVEL_POSITION,
+            ROTATOR_INTAKE_POSITION,
+            WRIST_INTAKE_POSITION,
             SORTER_LEFT_POSITION);
     public static final ArmPosition ARM_INTERIM_TRAVEL_POSITION = new ArmPosition(
             SHOULDER_INTERIM_TRAVEL_POSITION,

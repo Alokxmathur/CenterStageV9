@@ -203,16 +203,18 @@ public class ObjectDetector {
     public String getDetectionStatus() {
         StringBuilder status = new StringBuilder();
         for (DetectableObject detectableObject : detectableObjects.values()) {
-            if (!detectableObject.isDisabled() && detectableObject.getFoundObjects().size() > 0) {
-                status
-                        .append(detectableObject.getShortName())
-                        .append(": ")
-                        .append(detectableObject.getFoundObjects().size())
-                        .append("@")
-                        .append(detectableObject.getXPositionOfLargestObject())
-                        .append(",")
-                        .append(detectableObject.getYPositionOfLargestObject())
-                        .append(", ");
+            synchronized (detectableObject) {
+                if (!detectableObject.isDisabled() && detectableObject.getFoundObjects().size() > 0) {
+                    status
+                            .append(detectableObject.getShortName())
+                            .append(": ")
+                            .append(detectableObject.getFoundObjects().size())
+                            .append("@")
+                            .append(detectableObject.getXPositionOfLargestObject())
+                            .append(",")
+                            .append(detectableObject.getYPositionOfLargestObject())
+                            .append(", ");
+                }
             }
         }
         return status.toString();
@@ -257,11 +259,11 @@ public class ObjectDetector {
         Imgproc.cvtColor(pyrDownHsvMat, pyrDownHsvMat, Imgproc.COLOR_RGB2HSV);
 
         //go through each of our detectable objects to see if we are seeing any of them
-        for (DetectableObject detectableObject : detectableObjects.values()) {
-            detectableObject.clearFoundObjects();
-            //only look for object if it is not disabled
-            if (!detectableObject.isDisabled()) {
-                synchronized (detectableObject) {
+        synchronized (detectableObjects) {
+            for (DetectableObject detectableObject : detectableObjects.values()) {
+                detectableObject.clearFoundObjects();
+                //only look for object if it is not disabled
+                if (!detectableObject.isDisabled()) {
                     findObject(detectableObject);
                 }
             }
@@ -316,9 +318,9 @@ public class ObjectDetector {
      * @return
      */
     public double getLargestArea(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        if (detectableObject != null) {
-            synchronized (detectableObject) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
+            if (detectableObject != null) {
                 return detectableObject.largestArea;
             }
         }
@@ -379,8 +381,8 @@ public class ObjectDetector {
      * @return
      */
     public double getDistanceFromCameraOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        synchronized (Objects.requireNonNull(detectableObject)) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             Rect boundingRectangle = Imgproc.boundingRect(detectableObject.getLargestObject());
             return detectableObject.getWidth() * FOCAL_LENGTH / boundingRectangle.height;
         }
@@ -395,8 +397,8 @@ public class ObjectDetector {
      * @return
      */
     public double getXPositionOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        synchronized (Objects.requireNonNull(detectableObject)) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             return detectableObject.getXPositionOfLargestObject();
         }
     }
@@ -410,24 +412,24 @@ public class ObjectDetector {
      * @return
      */
     public double getYPositionOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        synchronized (Objects.requireNonNull(detectableObject)) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             return detectableObject.getYPositionOfLargestObject();
         }
 
     }
 
     public double getWidthOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        synchronized (Objects.requireNonNull(detectableObject)) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             return detectableObject.getWidthOfLargestObject();
         }
 
     }
 
     public double getHeightOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        synchronized (Objects.requireNonNull(detectableObject)) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             return detectableObject.getHeightOfLargestObject();
         }
 
@@ -465,13 +467,13 @@ public class ObjectDetector {
 
     public Field.SpikePosition getSpikePosition() {
         DetectableObject detectableObject;
-        if (Match.getInstance().getAlliance() == Alliance.Color.RED) {
-            detectableObject = getDetectableObjects().get(ObjectDetector.ObjectType.RedProp);
-        } else {
-            detectableObject = getDetectableObjects().get(ObjectDetector.ObjectType.BlueProp);
-        }
-        if (detectableObject != null) {
-            synchronized (detectableObject) {
+        synchronized (detectableObjects) {
+            if (Match.getInstance().getAlliance() == Alliance.Color.RED) {
+                detectableObject = getDetectableObjects().get(ObjectDetector.ObjectType.RedProp);
+            } else {
+                detectableObject = getDetectableObjects().get(ObjectDetector.ObjectType.BlueProp);
+            }
+            if (detectableObject != null) {
                 int xPositionOfProp = detectableObject.getXPositionOfLargestObject();
                 if (xPositionOfProp > 1160) {
                     lastSpikePosition = Field.SpikePosition.Right;
@@ -480,7 +482,6 @@ public class ObjectDetector {
                 } else {
                     lastSpikePosition = Field.SpikePosition.Left;
                 }
-
             }
         }
         return lastSpikePosition;

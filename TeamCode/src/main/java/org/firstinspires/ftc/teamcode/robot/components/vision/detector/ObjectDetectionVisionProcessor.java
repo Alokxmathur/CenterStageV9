@@ -75,14 +75,15 @@ public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vis
         drawRectangle(canvas, scaleBmpPxToCanvasPx, redLinePaint, areaOfInterest);
         Map<ObjectDetector.ObjectType, DetectableObject> detectedObjects = (Map<ObjectDetector.ObjectType, DetectableObject>) userContext;
         //paint information about each of the largest objects seen
-        for (DetectableObject detectableObject : detectedObjects.values()) {
-            if (detectableObject.getType() == ObjectDetector.ObjectType.CrossHair) {
-                paintObject(canvas, scaleBmpPxToCanvasPx, blueLinePaint, textPaint, detectableObject);
-            } else {
-                paintObject(canvas, scaleBmpPxToCanvasPx, greenLinePaint, textPaint, detectableObject);
+        synchronized (detectedObjects) {
+            for (DetectableObject detectableObject : detectedObjects.values()) {
+                if (detectableObject.getType() == ObjectDetector.ObjectType.CrossHair) {
+                    paintObject(canvas, scaleBmpPxToCanvasPx, blueLinePaint, textPaint, detectableObject);
+                } else {
+                    paintObject(canvas, scaleBmpPxToCanvasPx, greenLinePaint, textPaint, detectableObject);
+                }
             }
         }
-
     }
 
     private static void paintObject(Canvas canvas, float scaleBmpPxToCanvasPx, Paint linePaint, TextPaint textPaint, DetectableObject detectableObject) {

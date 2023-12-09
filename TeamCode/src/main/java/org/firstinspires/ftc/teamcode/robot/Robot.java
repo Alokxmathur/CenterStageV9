@@ -286,7 +286,7 @@ public class Robot {
                     tagId += 3;
                 }
                 //align with april tag, staying 7 inches from it
-                DriveToAprilTag.driveToAprilTag(tagId, RobotConfig.CAUTIOUS_SPEED, 7*Field.MM_PER_INCH, driveTrain);
+                DriveToAprilTag.driveToAprilTag(tagId, RobotConfig.CAUTIOUS_SPEED, 10*Field.MM_PER_INCH, driveTrain);
             }
             else {
                 //regular driving
@@ -361,13 +361,13 @@ public class Robot {
             }
             if (gamePad2.b) {
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.InterimTravel, "Interim Travel Position"));
+                //queueSecondaryOperation(new ArmOperation(ArmOperation.Type.InterimTravel, "Interim Travel Position"));
                 //queueSecondaryOperation(new WaitOperation(1000, "Wait a sec"));
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Travel, "Travel Position"));
             }
             if (gamePad2.y) {
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Assume dump position"));
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "Assume dump position"));
+                //queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "Assume dump position"));
             }
             if (gamePad2.x) {
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit3, "Deposit pixels"));

@@ -15,33 +15,23 @@ import java.util.Locale;
 public class Arm {
     DcMotor shoulder, elbow, inOutMotor;
     Servo rotator, wrist, sorter;
-    DigitalChannel shoulderLimitSwitch;
+    DigitalChannel shoulderLimitSwitch, elbowLimitSwitch;
     boolean shoulderRetained, elbowRetained;
 
     public Arm(HardwareMap hardwareMap) {
         //the shoulder limit switch
         this.shoulderLimitSwitch = hardwareMap.get(DigitalChannel.class, RobotConfig.SHOULDER_LIMIT_SWITCH);
+        //the elbow limit switch
         //initialize our shoulder motor
         this.shoulder = hardwareMap.get(DcMotor.class, RobotConfig.SHOULDER);
         this.shoulder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.shoulder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //lower arm until limit switch is pressed
-        Match.log("Lowering shoulder until limit switch is pressed");
-        while (!shoulderLimitSwitch.getState()) {
-            setShoulderPower(-.2);
-        }
-        //raise arm until limit switch is not pressed
-        Match.log("Raising shoulder until limit switch is released");
-        while (shoulderLimitSwitch.getState()) {
-            setShoulderPower(.2);
-        }
-        this.shoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        this.elbowLimitSwitch = hardwareMap.get(DigitalChannel.class, RobotConfig.ELBOW_LIMIT_SWITCH);
         //initialize our elbow motor
         this.elbow = hardwareMap.get(DcMotor.class, RobotConfig.ELBOW);
         this.elbow.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.elbow.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        this.elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //initialize our intake motor
         this.inOutMotor = hardwareMap.get(DcMotor.class, RobotConfig.INOUT_MOTOR);
@@ -58,6 +48,37 @@ public class Arm {
 
         ensureMotorDirections();
         assumeInitialPosition();
+
+        initializeElbow();
+        initializeShoulder();
+    }
+
+    private void initializeShoulder() {
+        //lower shoulder until limit switch is pressed
+        Match.log("Lowering shoulder until limit switch is pressed");
+        while (!shoulderLimitSwitch.getState()) {
+            setShoulderPower(-.2);
+        }
+        //raise arm until limit switch is not pressed
+        Match.log("Raising shoulder until limit switch is released");
+        while (shoulderLimitSwitch.getState()) {
+            setShoulderPower(.2);
+        }
+        this.shoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    private void initializeElbow() {
+        //lower arm until limit switch is pressed
+        Match.log("Lowering elbow until limit switch is pressed");
+        while (!elbowLimitSwitch.getState()) {
+            setElbowPower(.2);
+        }
+        //raise elbow until limit switch is not pressed
+        Match.log("Raising elbow until limit switch is released");
+        while (elbowLimitSwitch.getState()) {
+            setElbowPower(-.2);
+        }
+        this.elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void ensureMotorDirections() {
@@ -256,7 +277,7 @@ public class Arm {
         this.setInOutPower(0);
     }
     public void throwUp() {
-        this.setInOutPower(-1);
+        this.setInOutPower(-.4);
     }
 
     /**

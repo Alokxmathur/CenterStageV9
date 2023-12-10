@@ -26,6 +26,7 @@
     public static final String MINIARM = "miniArm";
 
     public static final String DRONE_LAUNCHER = "droneLauncher";
+    public static final String DRONE_HOLDER = "droneHolder";
 
     public static final double WRIST_STARTING_POSITION = .9;
     public static final double WRIST_DEPOSIT_POSITION_1 = .929;
@@ -45,6 +46,8 @@
 
     public static final double DRONE_TRIGGER_INITIAL_POSITION = 1;
     public static final double DRONE_TRIGGER_RELEASE_POSITION = 0.3;
+    public static final double DRONE_HOLDER_INITIAL_POSITION = 1;
+    public static final double DRONE_HOLDER_RELEASE_POSITION = 0.3;
     public static final double TRIGGER_INCREMENT = 0.01;
 
     public static final double MINIARM_INITIAL_POSITION = 0.39;
@@ -73,12 +76,12 @@
     public static final int SHOULDER_STARTING_POSITION = 0;
     public static final int SHOULDER_INTAKE_POSITION = 390;
     public static final int SHOULDER_INTERIM_TRAVEL_POSITION = 0;
-    public static final int SHOULDER_TRAVEL_POSITION = 560;
+    public static final int SHOULDER_TRAVEL_POSITION = 240;
     public static final int SHOULDER_DEPOSIT_POSITION = 1730;
     public static final int SHOULDER_AUTO_DEPOSIT_POSITION = 1300;
 
     public static final int ELBOW_STARTING_POSITION = 0;
-    public static final int ELBOW_INTAKE_POSITION = -2110;
+    public static final int ELBOW_INTAKE_POSITION = -2194;
     public static final int ELBOW_TRAVEL_POSITION = -1500;
     public static final int ELBOW_INTERIM_TRAVEL_POSITION = -600;
     public static final int ELBOW_INTERIM_DEPOSIT_POSITION = -1400;
@@ -106,10 +109,10 @@
             .274,
             SORTER_LEFT_POSITION);
     public static final ArmPosition ARM_DEPOSIT_POSITION_2 = new ArmPosition(
-            SHOULDER_DEPOSIT_POSITION,
-            ELBOW_INTERIM_DEPOSIT_POSITION,
-            ROTATOR_TURNED_OVER_POSITION,
-            WRIST_INTERIM_TRAVEL_POSITION,
+            900,
+            -1440,
+            0,
+            .274,
             SORTER_LEFT_POSITION);
     public static final ArmPosition ARM_DEPOSIT_POSITION_3 = new ArmPosition(
             SHOULDER_DEPOSIT_POSITION,
@@ -118,7 +121,7 @@
             WRIST_DEPOSIT_POSITION_3,
             SORTER_LEFT_POSITION);
     public static final ArmPosition ARM_TRAVEL_POSITION = new ArmPosition(
-            SHOULDER_INTAKE_POSITION,
+            SHOULDER_TRAVEL_POSITION,
             ELBOW_TRAVEL_POSITION,
             ROTATOR_INTAKE_POSITION,
             WRIST_INTAKE_POSITION,

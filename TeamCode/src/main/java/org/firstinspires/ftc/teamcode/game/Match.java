@@ -110,6 +110,7 @@ public class Match {
             telemetry.addData("Drive", robot.getDriveTrain().getStatus());
             telemetry.addData("Arm", robot.getArmStatus());
             telemetry.addData("MiniArm", robot.getMiniArmStatus());
+            telemetry.addData("Launcher", robot.getLauncherStatus());
             telemetry.addData("Camera", robot.getVisionPortal().getStatus());
             robot.getVisionPortal().telemetryAprilTag(telemetry);
 

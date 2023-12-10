@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot.components.vision.detector;
 
+import org.firstinspires.ftc.teamcode.game.Match;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Rect;
@@ -94,6 +95,7 @@ public class DetectableObject {
         if (area > largestArea) {
             largestAreaIndex = this.foundObjects.size() - 1;
             largestArea = area;
+            Match.log("Setting largest area of " + type + " to be " + area);
         }
     }
 
@@ -118,11 +120,13 @@ public class DetectableObject {
     public int getYPositionOfLargestObject() {
         MatOfPoint largestObject = getLargestObject();
         if (largestObject != null) {
-            Rect boundingRectangle = Imgproc.boundingRect(largestObject);
-            return boundingRectangle.y + boundingRectangle.height / 2;
-        } else {
-            return -1;
+            try {
+                Rect boundingRectangle = Imgproc.boundingRect(largestObject);
+                return boundingRectangle.y + boundingRectangle.height / 2;
+            }
+            catch (Throwable e){}
         }
+        return -1;
     }
 
     /**
@@ -133,11 +137,14 @@ public class DetectableObject {
     public int getXPositionOfLargestObject() {
         MatOfPoint largestObject = getLargestObject();
         if (largestObject != null) {
-            Rect boundingRectangle = Imgproc.boundingRect(largestObject);
-            return boundingRectangle.x + boundingRectangle.width / 2;
-        } else {
-            return -1;
+            try {
+                Rect boundingRectangle = Imgproc.boundingRect(largestObject);
+                return boundingRectangle.x + boundingRectangle.width / 2;
+            }
+            catch (Throwable e) {
+            }
         }
+        return -1;
     }
 
     /**

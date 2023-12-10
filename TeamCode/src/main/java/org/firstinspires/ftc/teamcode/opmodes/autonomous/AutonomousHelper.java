@@ -76,10 +76,10 @@ public abstract class AutonomousHelper extends OpMode {
                         (30 - (int) (new Date().getTime() - initStartTime.getTime()) / 1000));
                 telemetry.addData("Position", robot.getPose());
             } else if (robot.fullyInitialized()) {
+                robot.getVisionPortal().enableObjectDetection();
                 //enable the alliance specific prop detection
                 robot.getVisionPortal().enableObjectDetection(
                         match.getAlliance() == Alliance.Color.RED ? ObjectDetector.ObjectType.RedProp : ObjectDetector.ObjectType.BlueProp);
-
                 Field.SpikePosition spikePosition = robot.getSpikePosition();
                 match.setSpikePosition(spikePosition);
                 match.updateTelemetry(telemetry, "Ready");

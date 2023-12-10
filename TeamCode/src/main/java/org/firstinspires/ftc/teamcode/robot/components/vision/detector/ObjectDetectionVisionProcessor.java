@@ -19,7 +19,7 @@ import java.util.Map;
 
 
 public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vision.VisionProcessor {
-    ObjectDetector objectDetector = new ObjectDetector(0, RobotConfig.X_PIXEL_COUNT, 500, RobotConfig.Y_PIXEL_COUNT);
+    ObjectDetector objectDetector = new ObjectDetector(0, RobotConfig.X_PIXEL_COUNT, 200, RobotConfig.Y_PIXEL_COUNT);
     private final TextPaint textPaint = new TextPaint();
     private final Paint greenLinePaint = new Paint();
     private final Paint redLinePaint = new Paint();

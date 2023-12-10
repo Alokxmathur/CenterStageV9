@@ -248,6 +248,22 @@ public class Robot {
         else if (gamePad2.left_bumper) {
             droneLauncher.holdDrone();
         }
+        if (gamePad1.left_bumper) {
+            if (gamePad1.left_trigger > .2) {
+                droneLauncher.decrementalHold();
+            }
+            else {
+                droneLauncher.decrementalLaunch();
+            }
+        }
+        if (gamePad1.right_bumper) {
+            if (gamePad1.left_trigger > .2) {
+                droneLauncher.incrementalHold();
+            }
+            else {
+                droneLauncher.incrementalLaunch();
+            }
+        }
     }
 
     /**
@@ -366,11 +382,11 @@ public class Robot {
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Travel, "Travel Position"));
             }
             if (gamePad2.y) {
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Assume dump position"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Low deposit position"));
                 //queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "Assume dump position"));
             }
             if (gamePad2.x) {
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit3, "Deposit pixels"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "High deposit position"));
             }
             if (gamePad1.a) {
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.AutoDeposit, "Auto Deposit pixels"));
@@ -445,5 +461,9 @@ public class Robot {
 
     public LED getLed() {
         return this.led;
+    }
+
+    public String getLauncherStatus() {
+        return this.droneLauncher.getStatus();
     }
 }

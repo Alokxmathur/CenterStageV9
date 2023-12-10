@@ -112,10 +112,13 @@ public abstract class Autonomous extends AutonomousHelper {
         states.add(state);
 
         state = new State("Drop yellow pixel");
-        state.addPrimaryOperation(new BearingOperation(bearingToBackdrop, robot.getDriveTrain(), "face backdrop"));
+        state.addPrimaryOperation(new BearingOperation(bearingToBackdrop, robot.getDriveTrain(), "Face backdrop"));
+        state.addPrimaryOperation(new DriveForDistanceOperation(5*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Reach backdrop"));
         state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Ready to drop"));
-        state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "Drop pixel"));
-        state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Go higher to drop pixel"));
+        state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.ThrowUp, "Expel pixel"));
+        state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "Go higher to clear pixel"));
+        state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop in/out take"));
+
         states.add(state);
 
 

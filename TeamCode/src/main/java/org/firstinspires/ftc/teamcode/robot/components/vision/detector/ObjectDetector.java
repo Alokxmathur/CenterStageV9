@@ -36,7 +36,7 @@ public class ObjectDetector {
 
     boolean gamePad1A, gamePad1B, gamePad1Y, gamePad1X, gamePad2A, gamePad2B, gamePad2Y, gamePad2X, gamePad1RightTriggerWasPressed;
 
-    Field.SpikePosition lastSpikePosition = Field.SpikePosition.NotSeen;
+    Field.SpikePosition lastSpikePosition = Field.SpikePosition.Left;
 
     /**
      * Manage Object detection based on game pad buttons
@@ -308,6 +308,9 @@ public class ObjectDetector {
                     //Match.log("Found " + objectType + " of area: " + area);
                 }
             }
+            else {
+                Match.log("Object not withing bounds: " + boundingRectangle.x*4 + ", " + boundingRectangle.y * 4);
+            }
         }
     }
 
@@ -475,9 +478,9 @@ public class ObjectDetector {
             }
             if (detectableObject != null) {
                 int xPositionOfProp = detectableObject.getXPositionOfLargestObject();
-                if (xPositionOfProp > 1160) {
+                if (xPositionOfProp > 450) {
                     lastSpikePosition = Field.SpikePosition.Right;
-                } else if (xPositionOfProp > 500) {
+                } else if (xPositionOfProp > 150) {
                     lastSpikePosition = Field.SpikePosition.Middle;
                 } else {
                     lastSpikePosition = Field.SpikePosition.Left;

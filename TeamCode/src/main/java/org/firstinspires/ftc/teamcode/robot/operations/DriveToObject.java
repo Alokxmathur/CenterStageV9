@@ -36,8 +36,8 @@ public class DriveToObject extends DriveInDirectionOperation {
     @Override
     public void startOperation() {
         if (objectType != null) {
-            if (robot.getWebcam().seeingObject(objectType)) {
-                double distance = robot.getWebcam().getDistanceToLargestObject(objectType);
+            if (robot.getVisionPortal().seeingObject(objectType)) {
+                double distance = robot.getVisionPortal().getDistanceToLargestObject(objectType);
                 robot.setState("Distance to " + objectType + " " + distance);
                 if (distance >= 10) {
                     this.distance = -(distance-10)* Field.MM_PER_INCH;

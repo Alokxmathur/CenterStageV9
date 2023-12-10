@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.game.Alliance;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.robot.components.vision.detector.ObjectDetector;
 import org.firstinspires.ftc.teamcode.robot.operations.State;
 
 import java.util.ArrayList;
@@ -21,13 +22,10 @@ public abstract class AutonomousHelper extends OpMode {
     protected Robot robot;
     protected Field field;
 
-    boolean processedAllState = false;
-
     ArrayList<State> states = new ArrayList<>();
 
     Date initStartTime;
 
-    boolean cameraPoseSet = false;
     boolean statesAdded = false;
     //start with assuming that there might be an error when initializing the robot
     boolean initErrorHappened = true;
@@ -55,7 +53,7 @@ public abstract class AutonomousHelper extends OpMode {
             this.robot = match.getRobot();
             Match.log("Initializing robot");
             this.robot.init(hardwareMap, telemetry, match);
-            Match.log("Robot initialized");
+
             telemetry.update();
             initErrorHappened = false;
         }
@@ -69,23 +67,27 @@ public abstract class AutonomousHelper extends OpMode {
      */
     @Override
     public void init_loop() {
-        //robot.handleGameControllers(gamepad1, gamepad2);
-        if (initErrorHappened) {
-            telemetry.addData("State", "Error: " + initError);
+        if (match.getAlliance() != Alliance.Color.NotSelected) {
+            //robot.handleGameControllers(gamepad1, gamepad2);
+            if (initErrorHappened) {
+                telemetry.addData("State", "Error: " + initError);
+            } else if (Field.isNotInitialized()) {
+                telemetry.addData("State", "Trajectories initializing, please wait. " +
+                        (30 - (int) (new Date().getTime() - initStartTime.getTime()) / 1000));
+                telemetry.addData("Position", robot.getPose());
+            } else if (robot.fullyInitialized()) {
+                robot.getVisionPortal().enableObjectDetection();
+                //enable the alliance specific prop detection
+                robot.getVisionPortal().enableObjectDetection(
+                        match.getAlliance() == Alliance.Color.RED ? ObjectDetector.ObjectType.RedProp : ObjectDetector.ObjectType.BlueProp);
+                Field.SpikePosition spikePosition = robot.getSpikePosition();
+                match.setSpikePosition(spikePosition);
+                match.updateTelemetry(telemetry, "Ready");
+            } else {
+                telemetry.addData("Status", "Cameras initializing, please wait");
+            }
         }
-        else if (Field.isNotInitialized()) {
-            telemetry.addData("State", "Trajectories initializing, please wait. " +
-                    (30 - (int)(new Date().getTime() - initStartTime.getTime())/1000));
-            telemetry.addData("Position", robot.getPose());
-        }
-        else if (robot.fullyInitialized()) {
-            Field.SpikePosition spikePosition = robot.getSpikePosition();
-            match.setSpikePosition(spikePosition);
-            match.updateTelemetry(telemetry, "Ready");
-        }
-        else {
-            telemetry.addData("Status", "Cameras initializing, please wait");
-        }
+        robot.handleGameControllers(gamepad1, gamepad2);
         telemetry.update();
         Thread.yield();
     }

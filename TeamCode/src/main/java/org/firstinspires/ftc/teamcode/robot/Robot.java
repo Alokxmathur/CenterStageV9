@@ -8,12 +8,14 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.game.Alliance;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.components.Arm;
 import org.firstinspires.ftc.teamcode.robot.components.DroneLauncher;
 import org.firstinspires.ftc.teamcode.robot.components.InOutTake;
 import org.firstinspires.ftc.teamcode.robot.components.LED;
+import org.firstinspires.ftc.teamcode.robot.components.MiniArm;
 import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
 import org.firstinspires.ftc.teamcode.robot.components.vision.detector.ObjectDetectorWebcam;
 import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
@@ -87,6 +89,7 @@ public class Robot {
     Arm arm;
     InOutTake inOutTake;
     DroneLauncher droneLauncher;
+    MiniArm miniArm;
 
     ObjectDetectorWebcam webcam;
 
@@ -113,11 +116,16 @@ public class Robot {
         initCameras();
         initDriveTrain();
         this.led = new LED(hardwareMap);
-        this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-
+        if (match.getAlliance() == Alliance.Color.RED) {
+            this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+        }
+        else {
+            this.led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+        }
         this.droneLauncher = new DroneLauncher(hardwareMap);
 
         this.arm = new Arm(hardwareMap);
+        this.miniArm = new MiniArm(hardwareMap);
         this.inOutTake= new InOutTake(hardwareMap);
 
         telemetry.addData("Status", "Creating operations thread, please wait");
@@ -267,10 +275,6 @@ public class Robot {
         }
     }
 
-    public void handleLED(Gamepad gamePad1, Gamepad gamePad2) {
-
-    }
-
     public void handleDriveTrain(Gamepad gamePad1) {
         if (this.primaryOperationsCompleted()) {
             double multiplier = gamePad1.right_trigger > 0.1 ? .6 : (gamePad1.left_trigger > 0.1 ? 1 : .3);
@@ -371,6 +375,21 @@ public class Robot {
         if (gamePad2.y) {
             queueSecondaryOperation(new ArmOperation(getArm(), ArmOperation.Type.Travel, "Assume Travel position"));
         }
+        /*
+        if (gamePad2.left_bumper) {
+            miniArm.decrementalDrop();
+        }
+        if (gamePad2.right_bumper) {
+            miniArm.incrementalUp();
+        }
+        if (gamePad2.left_trigger > .2) {
+            miniArm.goDrop();
+        }
+        if (gamePad2.right_trigger > .2) {
+            miniArm.goUp();
+        }
+
+         */
 
         if (secondaryOperationsCompleted()) {
             //handle shoulder movement
@@ -426,6 +445,10 @@ public class Robot {
         return this.arm;
     }
 
+    public MiniArm getMiniArm() {
+        return this.miniArm;
+    }
+
     public String getIntakeStatus() {
         return this.inOutTake.getStatus();
     }
@@ -436,5 +459,13 @@ public class Robot {
 
     public Field.SpikePosition getSpikePosition() {
         return webcam.getSpikePosition();
+    }
+
+    public String getMiniArmStatus() {
+        return miniArm.getStatus();
+    }
+
+    public LED getLed() {
+        return this.led;
     }
 }

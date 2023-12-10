@@ -2,13 +2,14 @@ package org.firstinspires.ftc.teamcode.robot.components.vision.detector;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.game.Alliance;
 import org.firstinspires.ftc.teamcode.game.Field;
+import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -18,109 +19,90 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A class to detect objects on the field
- *
+ * <p>
  * For this year the objects we try to detect are red and blue props, yellow, white, green and purple
  * pixels, blue and red tapes
  */
 public class ObjectDetector {
 
-    boolean gamePad1A, gamePad1B, gamePad1Y, gamePad1X, gamePad2A, gamePad2B, gamePad2Y, gamePad2X;
+    public static final double CAMERA_OFFSET_FRONT = 11.25;
+    public static final int FOCAL_LENGTH = 1500;
 
-    Field.SpikePosition lastSpikePosition = Field.SpikePosition.NotSeen;
+    public static final int MINIMUM_AREA = 100;
+
+    boolean gamePad1A, gamePad1B, gamePad1Y, gamePad1X, gamePad2A, gamePad2B, gamePad2Y, gamePad2X, gamePad1RightTriggerWasPressed;
+
+    Field.SpikePosition lastSpikePosition = Field.SpikePosition.Left;
 
     /**
      * Manage Object detection based on game pad buttons
-     *
+     * <p>
      * GamePad 1 a - toggle Green Pixel Detection
      * GamePad 1 b - toggle Red Prop Detection
      * GamePad 1 y - toggle Yellow Pixel Detection
      * GamePad 1 x - Blue Prop Detection
-     *
+     * <p>
      * GamePad 2 a - toggle Object Detection at cross hair
      * GamePad 2 b - toggle Red Tape Detection
      * GamePad 2 y - toggle White Pixel Detection
      * GamePad 2 x - toggle Blue Tape Detection
-     * @param
      */
     public void manageObjectDetection(Gamepad gamePad1, Gamepad gamePad2) {
-        /*
-        //disable all objects to start with
-        for (DetectableObject detectableObject: detectableObjects.values()) {
-            detectableObject.disable();
-        }
-         */
         //enable objects based on the buttons pressed
         if (gamePad1.a && !gamePad1A) {
-                this.detectableObjects.get(ObjectType.GreenPixel).toggleDisabled();
-                gamePad1A = true;
-        }
-        else {
+            Objects.requireNonNull(this.detectableObjects.get(ObjectType.GreenPixel)).toggleDisabled();
+            gamePad1A = true;
+        } else {
             gamePad1A = false;
         }
         if (gamePad1.b && !gamePad1B) {
-            this.detectableObjects.get(ObjectType.RedProp).toggleDisabled();
+            Objects.requireNonNull(this.detectableObjects.get(ObjectType.RedProp)).toggleDisabled();
             gamePad1B = true;
-        }
-        else {
+        } else {
             gamePad1B = false;
         }
         if (gamePad1.y && !gamePad1Y) {
-            this.detectableObjects.get(ObjectType.YellowPixel).toggleDisabled();
+            Objects.requireNonNull(this.detectableObjects.get(ObjectType.YellowPixel)).toggleDisabled();
             gamePad1Y = true;
-        }
-        else {
+        } else {
             gamePad1Y = false;
         }
         if (gamePad1.x && !gamePad1X) {
-            this.detectableObjects.get(ObjectType.BlueProp).toggleDisabled();
+            Objects.requireNonNull(this.detectableObjects.get(ObjectType.BlueProp)).toggleDisabled();
             gamePad1X = true;
-        }
-        else {
+        } else {
             gamePad1X = false;
         }
 
-        if (gamePad2.a && !gamePad2A) {
-            findObjectAtCrossHair = !findObjectAtCrossHair;
-            gamePad2A = true;
-        }
-        else {
-            gamePad2A = false;
-        }
         if (gamePad2.b && !gamePad2B) {
-            this.detectableObjects.get(ObjectType.RedTape).toggleDisabled();
+            Objects.requireNonNull(this.detectableObjects.get(ObjectType.RedTape)).toggleDisabled();
             gamePad2B = true;
-        }
-        else {
+        } else {
             gamePad2B = false;
         }
         if (gamePad2.y && !gamePad2Y) {
-            this.detectableObjects.get(ObjectType.WhitePixel).toggleDisabled();
+            Objects.requireNonNull(this.detectableObjects.get(ObjectType.WhitePixel)).toggleDisabled();
             gamePad2Y = true;
-        }
-        else {
+        } else {
             gamePad2Y = false;
         }
         if (gamePad2.x && !gamePad2X) {
-            this.detectableObjects.get(ObjectType.BlueTape).toggleDisabled();
+            Objects.requireNonNull(this.detectableObjects.get(ObjectType.BlueTape)).toggleDisabled();
             gamePad2X = true;
-        }
-        else {
+        } else {
             gamePad2X = false;
         }
+        if (gamePad1.right_trigger > .2 && !gamePad1RightTriggerWasPressed) {
+            Objects.requireNonNull(this.detectableObjects.get(ObjectType.PurplePixel)).toggleDisabled();
+            gamePad1RightTriggerWasPressed = true;
+        } else {
+            gamePad1RightTriggerWasPressed = false;
+        }
 
-    }
-
-    public void setupCrossHair(Mat sizingMat) {
-        //System.out.println("setting up cross hair, mat size = " + sizingMat.size());
-
-        crossHairPoint = new Point(sizingMat.cols()/2, sizingMat.rows()/2);
-    }
-
-    public Point getCrossHairPoint() {
-        return crossHairPoint;
     }
 
     public enum ObjectType {
@@ -128,24 +110,15 @@ public class ObjectDetector {
     }
 
     // Detectable objects
-    private static final HashMap<ObjectType, DetectableObject> detectableObjects = new HashMap<>();
+    private final HashMap<ObjectType, DetectableObject> detectableObjects = new HashMap<>();
 
     HsvBounds[] redPropBounds = {
             new HsvBounds(new Scalar(170, 200, 80), new Scalar(180, 255, 255)),
             new HsvBounds(new Scalar(0, 200, 80), new Scalar(10, 255, 255))
     };
 
-    HsvBounds[] redTapeBounds = {
-            new HsvBounds(new Scalar(0, 211, 70), new Scalar(10, 255, 255)),
-            new HsvBounds(new Scalar(170, 211, 70), new Scalar(180, 255, 255))
-    };
-
-    HsvBounds[] blueTapeBounds = {
-            new HsvBounds(new Scalar(105, 50, 191), new Scalar(115, 255, 255))
-    };
-
     HsvBounds[] bluePropBounds = {
-            new HsvBounds(new Scalar(105, 50, 100), new Scalar(120, 255, 190))
+            new HsvBounds(new Scalar(105, 50, 80), new Scalar(120, 255, 255))
     };
 
     HsvBounds[] yellowPixelBounds = {
@@ -153,11 +126,11 @@ public class ObjectDetector {
     };
 
     HsvBounds[] greenPixelBounds = {
-            new HsvBounds(new Scalar(50, 50, 70), new Scalar(65, 255, 255))
+            new HsvBounds(new Scalar(35, 0, 0), new Scalar(65, 255, 255))
     };
 
     HsvBounds[] purplePixelBounds = {
-            new HsvBounds(new Scalar(127, 60, 120), new Scalar(150, 180, 255))
+            new HsvBounds(new Scalar(120, 50, 120), new Scalar(150, 255, 255))
     };
 
     HsvBounds[] whitePixelBounds = {
@@ -165,67 +138,50 @@ public class ObjectDetector {
     };
 
     {
-        DetectableObject redPropObject = new DetectableObject(ObjectType.RedProp, redPropBounds, 4, 4);
-        redPropObject.setShortName("RP");
-        redPropObject.enable();
+        DetectableObject redPropObject = new DetectableObject(ObjectType.RedProp, "RP", redPropBounds, 4, 4);
         this.addObject(redPropObject);
 
-        DetectableObject bluePropObject = new DetectableObject(ObjectType.BlueProp, bluePropBounds, 4, 4);
-        bluePropObject.setShortName("BP");
-        bluePropObject.enable();
+        DetectableObject bluePropObject = new DetectableObject(ObjectType.BlueProp, "BP", bluePropBounds, 4, 4);
         this.addObject(bluePropObject);
 
-        this.addObject(new DetectableObject(ObjectType.YellowPixel, yellowPixelBounds, 1, 10));
-        this.addObject(new DetectableObject(ObjectType.GreenPixel, greenPixelBounds, 1, 10));
-        this.addObject(new DetectableObject(ObjectType.PurplePixel, purplePixelBounds, 1, 10));
-        this.addObject(new DetectableObject(ObjectType.WhitePixel, whitePixelBounds, 1, 10));
+        DetectableObject yellowPixel = new DetectableObject(ObjectType.YellowPixel, "YP", yellowPixelBounds, 1, 10);
+        this.addObject(yellowPixel);
 
-        this.addObject(new DetectableObject(ObjectType.RedTape, redTapeBounds, 4, 5));
-        this.addObject(new DetectableObject(ObjectType.BlueTape, blueTapeBounds, 4, 5));
+        DetectableObject greenPixel = new DetectableObject(ObjectType.GreenPixel, "GP", greenPixelBounds, 1, 10);
+        this.addObject(greenPixel);
+
+        DetectableObject purplePixel = new DetectableObject(ObjectType.PurplePixel, "PP", purplePixelBounds, 1, 10);
+        this.addObject(purplePixel);
+
+        DetectableObject whitePixel = new DetectableObject(ObjectType.WhitePixel, "WP", whitePixelBounds, 1, 10);
+        this.addObject(whitePixel);
     }
 
-    DetectableObject objectAtCrossHair;
-    public static HashMap<ObjectType, DetectableObject> getDetectableObjects() {
+    public HashMap<ObjectType, DetectableObject> getDetectableObjects() {
         return detectableObjects;
     }
-    Rect areaOfInterest;
-    Point crossHairPoint;
 
-    boolean findObjectAtCrossHair = true;
+    Rect areaOfInterest;
 
     int minAllowedX;
     int maxAllowedX;
     int minAllowedY;
     int maxAllowedY;
-    double minArea;
 
     Mat mHsvMat = new Mat();
     Mat pyrDownHsvMat = new Mat();
-    Mat mMask = new Mat();
+    Mat overallMaskOfObject = new Mat();
     Mat mSingularMask = new Mat();
     Mat mDilatedMask = new Mat();
     Mat mHierarchy = new Mat();
     Mat nothingMat = new Mat();
     List<MatOfPoint> objectsFound = new ArrayList<>();
 
-    public double[] getCrossHairHSV() {
-        return crossHairHSV;
-    }
-
-    private double[] crossHairHSV = new double[3];
-    private Scalar crossHairColor = new Scalar(0, 0, 0);
-
-    public Scalar getCrossHairColor() {
-        return crossHairColor;
-    }
-
-    public ObjectDetector(int minAllowedX, int maxAllowedX, int minAllowedY, int maxAllowedY,
-                          double minArea) {
-        this.minAllowedX = minAllowedY;
-        this.maxAllowedX = maxAllowedY;
-        this.minAllowedY = minAllowedX;
-        this.maxAllowedY = maxAllowedX;
-        this.minArea = minArea;
+    public ObjectDetector(int minAllowedX, int maxAllowedX, int minAllowedY, int maxAllowedY) {
+        this.minAllowedX = minAllowedX;
+        this.maxAllowedX = maxAllowedX;
+        this.minAllowedY = minAllowedY;
+        this.maxAllowedY = maxAllowedY;
         setupAreaOfInterest();
     }
 
@@ -234,7 +190,7 @@ public class ObjectDetector {
     }
 
     private void setupAreaOfInterest() {
-        this.areaOfInterest = new Rect(minAllowedY, minAllowedX, maxAllowedY-minAllowedY, maxAllowedX-minAllowedX);
+        this.areaOfInterest = new Rect(minAllowedX, minAllowedY, maxAllowedX - minAllowedX, maxAllowedY - minAllowedY);
     }
 
     public String getStatus() {
@@ -246,30 +202,52 @@ public class ObjectDetector {
 
     public String getDetectionStatus() {
         StringBuilder status = new StringBuilder();
-        for (DetectableObject detectableObject: detectableObjects.values()) {
-            if (!detectableObject.isDisabled() && detectableObject.getFoundObjects().size() > 0) {
-                status
-                        .append(detectableObject.getShortName())
-                        .append(": ")
-                        .append(detectableObject.getFoundObjects().size())
-                        .append("@")
-                        .append(detectableObject.getXPositionOfLargestObject())
-                        .append(",")
-                        .append(detectableObject.getYPositionOfLargestObject())
-                        .append(", ");
+        for (DetectableObject detectableObject : detectableObjects.values()) {
+            synchronized (detectableObject) {
+                if (!detectableObject.isDisabled() && detectableObject.getFoundObjects().size() > 0) {
+                    status
+                            .append(detectableObject.getShortName())
+                            .append(": ")
+                            .append(detectableObject.getFoundObjects().size())
+                            .append("@")
+                            .append(detectableObject.getXPositionOfLargestObject())
+                            .append(",")
+                            .append(detectableObject.getYPositionOfLargestObject())
+                            .append(", ");
+                }
             }
         }
         return status.toString();
     }
 
-    public Rect getRectangleOfInterest() {
+    public Rect getAreaOfInterest() {
         return areaOfInterest;
+    }
+
+    public void enableObject(ObjectType type) {
+        this.enableObject(type, true);
+    }
+
+    public void disableObject(ObjectType type) {
+        this.enableObject(type, false);
+    }
+
+    public void enableObject(ObjectType type, boolean enable) {
+        DetectableObject detectableObject = detectableObjects.get(type);
+        if (detectableObject != null) {
+            if (enable) {
+                detectableObject.enable();
+            } else {
+                detectableObject.disable();
+            }
+        }
     }
 
     /**
      * Take an rgb image and return a map of objects detected
-     * @param rgbImage
-     * @return
+     *
+     * @param rgbImage a matrix of rgb pixels
+     * @return a map of detected objects
      */
     public Map<ObjectType, DetectableObject> process(Mat rgbImage) {
         //save image sent in HSV format
@@ -280,119 +258,93 @@ public class ObjectDetector {
         //convert to HSV so we can use hsv range of objects to filter
         Imgproc.cvtColor(pyrDownHsvMat, pyrDownHsvMat, Imgproc.COLOR_RGB2HSV);
 
-        crossHairHSV = mHsvMat.get((int)crossHairPoint.x, (int)crossHairPoint.y);
-        if (findObjectAtCrossHair) {
-            double minHue = Math.max(crossHairHSV[0] - 5, 0);
-            double maxHue = Math.min(crossHairHSV[0] + 5, 180);
-            double minSaturation = Math.max(crossHairHSV[1] - 50, 0);
-            double maxSaturation = Math.min(crossHairHSV[1] + 50, 255);
-            double minValue = Math.max(crossHairHSV[2] - 50, 0);
-            double maxValue = Math.min(crossHairHSV[2] + 50, 255);
-            HsvBounds[] hsvBoundsAtCrossHair = new HsvBounds[1];
-            hsvBoundsAtCrossHair[0] = new HsvBounds(
-                    new Scalar(minHue, minSaturation, minValue),
-                    new Scalar(maxHue, maxSaturation, maxValue));
-            objectAtCrossHair = new DetectableObject(ObjectType.CrossHair, hsvBoundsAtCrossHair, 0, 0);
-            this.addObject(objectAtCrossHair);
-        }
-        else {
-            this.detectableObjects.remove(ObjectType.CrossHair);
-        }
-        crossHairColor = new Scalar(rgbImage.get((int)crossHairPoint.y, (int)crossHairPoint.x));
-
-        //go through each of our detectable objects
-        for (DetectableObject detectableObject : detectableObjects.values()) {
-            detectableObject.clearFoundObjects();
-            //only look for object if it is not disabled
-            if (!detectableObject.isDisabled()) {
-                findObject(detectableObject);
+        //go through each of our detectable objects to see if we are seeing any of them
+        synchronized (detectableObjects) {
+            for (DetectableObject detectableObject : detectableObjects.values()) {
+                detectableObject.clearFoundObjects();
+                //only look for object if it is not disabled
+                if (!detectableObject.isDisabled()) {
+                    findObject(detectableObject);
+                }
             }
         }
         return detectableObjects;
     }
 
     private void findObject(DetectableObject detectableObject) {
-        mMask = Mat.zeros(pyrDownHsvMat.size(), CvType.CV_8UC1);
+        overallMaskOfObject = Mat.zeros(pyrDownHsvMat.size(), CvType.CV_8UC1);
         //go through each specified hsv bounds of the detectable object
         for (HsvBounds bounds : detectableObject.getHsvBounds()) {
-            //remove all aspects of the image except those within the hsv bounds
+            //remove all aspects of the image except those within the hsv bounds being considered
             Core.inRange(pyrDownHsvMat, bounds.getLowerBound(), bounds.getUpperBound(), mSingularMask);
-            Core.bitwise_or(mMask, mSingularMask, mMask);
+            //do a bitwise or with the overall mask (mMask) with this range specific mask to create
+            //an overall mask considering all ranges for this object
+            Core.bitwise_or(overallMaskOfObject, mSingularMask, overallMaskOfObject);
         }
 
         //dilate image to get less sharp images
-        Imgproc.dilate(mMask, mDilatedMask, nothingMat);
+        Imgproc.dilate(overallMaskOfObject, mDilatedMask, nothingMat);
+        //release previously found objects
+        for (MatOfPoint foundContour : objectsFound) {
+            foundContour.release();
+        }
         objectsFound.clear();
         //find the contours in the dilated image
         Imgproc.findContours(mDilatedMask, objectsFound, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         //System.out.println("Found " + objectsFound.size() + " objects of type: " + detectableObject.getType());
-        //check each contour found
+        //check each contour found to see if it is the largest
         for (MatOfPoint contour : objectsFound) {
             Rect boundingRectangle = Imgproc.boundingRect(contour);
             //check to see if the contour is within our specified x and y limits
-            if (boundingRectangle.x * 4 <= maxAllowedX && boundingRectangle.x * 4 >= minAllowedX
-                    && boundingRectangle.y * 4 <= maxAllowedY && boundingRectangle.y * 4 >= minAllowedY) {
+            //we multiply by 4 because we had pyramid down twice
+            if (boundingRectangle.x * 4 <= maxAllowedY && boundingRectangle.x * 4 >= minAllowedY
+                    && boundingRectangle.y * 4 <= maxAllowedX && boundingRectangle.y * 4 >= minAllowedX) {
                 double area = Imgproc.contourArea(contour);
                 //check to see if contour area is at least our minimum area
-                if (area >= minArea || detectableObject.getType() == ObjectType.CrossHair) {
+                if (area >= MINIMUM_AREA || detectableObject.getType() == ObjectType.CrossHair) {
                     //zoom into contour because we had pyrDown twice earlier
                     Core.multiply(contour, new Scalar(4, 4), contour);
-                    mMask = Mat.zeros(mHsvMat.size(), CvType.CV_8UC1);
-                    List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-                    contours.add(contour);
-                    Imgproc.drawContours(mMask, contours, -1, new Scalar(255), -1);
-                    Scalar mean = Core.mean(mHsvMat, mMask);
-                    detectableObject.addFoundObject(contour, area, mean);
-
+                    detectableObject.addFoundObject(contour, area);
                     //Match.log("Found " + objectType + " of area: " + area);
-                } else {
-                    //System.out.println("Area " + area + " too small for " + detectableObject.getType());
                 }
             }
             else {
-                //System.out.println("Skipping " + detectableObject.getType() + " contour at " + boundingRectangle.x*4 + "," + boundingRectangle.y*4);
+                Match.log("Object not withing bounds: " + boundingRectangle.x*4 + ", " + boundingRectangle.y * 4);
             }
         }
     }
 
     /**
      * Returns the area of the largest object (in area) seen of the provided objectName
+     *
      * @param objectType
      * @return
      */
     public double getLargestArea(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        if (detectableObject != null) {
-            return detectableObject.largestArea;
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
+            if (detectableObject != null) {
+                return detectableObject.largestArea;
+            }
         }
         return 0;
-    }
-
-    /**
-     * Returns the mean value of the largest object seen of the provided objectName
-     * @param objectType
-     * @return
-     */
-    public Scalar getLargestAreaMean(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        if (detectableObject != null) {
-            return detectableObject.getLargestAreaMean();
-        }
-        return new Scalar(0);
     }
 
     public void decrementMinAllowedX() {
         this.minAllowedX = Math.max(minAllowedX - 1, 0);
         setupAreaOfInterest();
     }
+
     public void incrementMinAllowedX() {
-        this.minAllowedX = Math.min(minAllowedX + 1, RobotConfig.Y_PIXEL_COUNT -1);
+        this.minAllowedX = Math.min(minAllowedX + 1, RobotConfig.Y_PIXEL_COUNT - 1);
         setupAreaOfInterest();
     }
+
     public void decrementMaxAllowedX() {
         this.maxAllowedX = Math.max(maxAllowedX - 1, 0);
         setupAreaOfInterest();
     }
+
     public void incrementMaxAllowedX() {
         this.maxAllowedX = Math.min(maxAllowedX + 1, RobotConfig.Y_PIXEL_COUNT);
         setupAreaOfInterest();
@@ -402,76 +354,88 @@ public class ObjectDetector {
         this.minAllowedY = Math.max(minAllowedY - 1, 0);
         setupAreaOfInterest();
     }
+
     public void incrementMinAllowedY() {
-        this.minAllowedY = Math.min(minAllowedY + 1, RobotConfig.X_PIXEL_COUNT-1);
+        this.minAllowedY = Math.min(minAllowedY + 1, RobotConfig.X_PIXEL_COUNT - 1);
         setupAreaOfInterest();
     }
+
     public void decrementMaxAllowedY() {
         this.maxAllowedY = Math.max(maxAllowedY - 1, 0);
         setupAreaOfInterest();
     }
+
     public void incrementMaxAllowedY() {
         this.maxAllowedY = Math.min(maxAllowedY + 1, RobotConfig.X_PIXEL_COUNT);
         setupAreaOfInterest();
     }
 
-    /** Return the distance to the object from the camera
+    public void setMaxAllowedY(int maxAllowedY) {
+        this.maxAllowedY = maxAllowedY;
+    }
+
+    public void setMaxAllowedX(int maxAllowedX) {
+        this.maxAllowedX = maxAllowedX;
+    }
+
+    /**
+     * Return the distance to the object from the camera
      *
      * @return
      */
     public double getDistanceFromCameraOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        if (detectableObject != null) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             Rect boundingRectangle = Imgproc.boundingRect(detectableObject.getLargestObject());
-            return detectableObject.getWidth() * DetectorPipeline.FOCAL_LENGTH / boundingRectangle.height;
-        }
-        else {
-            return -1;
+            return detectableObject.getWidth() * FOCAL_LENGTH / boundingRectangle.height;
         }
     }
-    /** Returns the x position of the largest object of the type seen
+
+    /**
+     * Returns the x position of the largest object of the type seen
      * X and y coordinates are reversed from the point of view of the robot from the camera image
-     *
+     * <p>
      * Also camera's 0 is really at 1920/2
      *
      * @return
      */
     public double getXPositionOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        if (detectableObject != null) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             return detectableObject.getXPositionOfLargestObject();
         }
-        return -1;
     }
-    /** Returns the y position of the largest object of the type seen (in inches)
+
+    /**
+     * Returns the y position of the largest object of the type seen (in inches)
      * X and y coordinates are reversed from the point of view of the robot from the camera image
-     *
+     * <p>
      * Also camera's 0 is really at 1920/2
      *
      * @return
      */
     public double getYPositionOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        if (detectableObject != null) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             return detectableObject.getYPositionOfLargestObject();
         }
-        return -1;
+
     }
 
     public double getWidthOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        if (detectableObject != null) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             return detectableObject.getWidthOfLargestObject();
         }
-        return -1;
+
     }
 
     public double getHeightOfLargestObject(ObjectType objectType) {
-        DetectableObject detectableObject = detectableObjects.get(objectType);
-        if (detectableObject != null) {
+        synchronized (detectableObjects) {
+            DetectableObject detectableObject = detectableObjects.get(objectType);
             return detectableObject.getHeightOfLargestObject();
         }
-        return -1;
+
     }
 
     public static class HsvBounds {
@@ -504,4 +468,25 @@ public class ObjectDetector {
         }
     }
 
+    public Field.SpikePosition getSpikePosition() {
+        DetectableObject detectableObject;
+        synchronized (detectableObjects) {
+            if (Match.getInstance().getAlliance() == Alliance.Color.RED) {
+                detectableObject = getDetectableObjects().get(ObjectDetector.ObjectType.RedProp);
+            } else {
+                detectableObject = getDetectableObjects().get(ObjectDetector.ObjectType.BlueProp);
+            }
+            if (detectableObject != null) {
+                int xPositionOfProp = detectableObject.getXPositionOfLargestObject();
+                if (xPositionOfProp > 450) {
+                    lastSpikePosition = Field.SpikePosition.Right;
+                } else if (xPositionOfProp > 150) {
+                    lastSpikePosition = Field.SpikePosition.Middle;
+                } else {
+                    lastSpikePosition = Field.SpikePosition.Left;
+                }
+            }
+        }
+        return lastSpikePosition;
+    }
 }

@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.robot.operations;
 
-import org.firstinspires.ftc.teamcode.robot.RobotConfig;
+import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.components.Arm;
 
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -25,13 +24,14 @@ import java.util.Locale;
 public class ArmOperation extends Operation {
 
     public enum Type {
-        DropLeft, DropRight, Pickup, Release1, Release2, Release3, Travel, Deposit1, Deposit2
+        Intake, Travel, InterimTravel, Travel_From_Deposit, Deposit1, Deposit2, Deposit3, AutoDeposit,
+        Eat, ThrowUp, Abstain
     }
     Arm arm;
     Type type;
 
-    public ArmOperation(Arm arm, Type type, String title) {
-        this.arm = arm;
+    public ArmOperation(Type type, String title) {
+        this.arm = Match.getInstance().getRobot().getArm();
         this.type = type;
         this.title = title;
     }
@@ -42,34 +42,47 @@ public class ArmOperation extends Operation {
     }
 
     public boolean isComplete() {
-        if (type == Type.DropLeft || type == Type.DropRight) {
-            return (new Date().getTime() - this.getStartTime().getTime() > RobotConfig.SERVO_REQUIRED_TIME);
-        }
-        else {
-            return arm.isWithinRange();
+
+        switch (this.type) {
+            case Intake:
+            case Travel:
+            case InterimTravel:
+            case Deposit1:
+            case Deposit2:
+            case Deposit3:
+            case AutoDeposit:
+            {
+                return arm.isWithinRange();
+            }
+            default: return true;
         }
     }
 
     @Override
     public void startOperation() {
         switch (this.type) {
-            case Pickup:
+            case Intake:
             case Travel:
+            case InterimTravel:
             case Deposit1:
             case Deposit2:
-            case Release1:
-            case Release2:
-            case Release3:
+            case Deposit3:
+            case AutoDeposit:
             {
                 arm.setPositions(type);
                 break;
             }
-            case DropLeft: {
-                arm.sorterRight();
+            case Eat: {
+                arm.eat();
                 break;
             }
-            case DropRight: {
-                arm.sorterLeft();
+            case Abstain: {
+                arm.abstain();
+                break;
+            }
+            case ThrowUp: {
+                arm.throwUp();
+                break;
             }
         }
     }

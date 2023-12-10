@@ -107,13 +107,13 @@ public class Match {
         if (robot != null && field != null) {
             // Send telemetry message to signify robot context;
             telemetry.addData("State", status + ", spike: " + getSpikePosition());
-            telemetry.addData("Position", robot.getPose());
             telemetry.addData("Drive", robot.getDriveTrain().getStatus());
-            telemetry.addData("LED", robot.getLEDStatus().toString());
-            telemetry.addData("TrajectoryErr", getTrajectoryError());
             telemetry.addData("Arm", robot.getArmStatus());
             telemetry.addData("MiniArm", robot.getMiniArmStatus());
-            telemetry.addData("Camera", robot.getWebcam().getStatus());
+            telemetry.addData("Launcher", robot.getLauncherStatus());
+            telemetry.addData("Camera", robot.getVisionPortal().getStatus());
+            robot.getVisionPortal().telemetryAprilTag(telemetry);
+
             updateDashBoard(status);
         }
         else {
@@ -196,7 +196,7 @@ public class Match {
         packet.put("LED", robot.getLEDStatus().toString());
         packet.put("TrajectoryErr", getTrajectoryError());
         packet.put("Arm", robot.getArmStatus());
-        packet.put("Camera", robot.getWebcam().getStatus());
+        packet.put("Vision", robot.getVisionPortal().getStatus());
 
         dashboard.sendTelemetryPacket(packet);
     }

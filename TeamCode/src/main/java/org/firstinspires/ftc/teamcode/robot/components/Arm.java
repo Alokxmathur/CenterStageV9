@@ -13,10 +13,19 @@ import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
 import java.util.Locale;
 
 public class Arm {
+    public static final int CORE_HEX_MOTOR_COUNT_PER_REV = 288;
+    public static final int INOUT_GEAR_RATIO = 3;
+
     DcMotor shoulder, elbow, inOutMotor;
-    Servo rotator, wrist, sorter;
+    Servo rotator, wrist;
     DigitalChannel shoulderLimitSwitch, elbowLimitSwitch;
-    boolean shoulderRetained, elbowRetained;
+    boolean shoulderRetained,
+            elbowRetained,
+            shoulderReset,
+            elbowReset,
+            intakeReset,
+            shoulderLowered,
+            elbowLowered;
 
     public Arm(HardwareMap hardwareMap) {
         //the shoulder limit switch
@@ -43,47 +52,91 @@ public class Arm {
         this.rotator = hardwareMap.get(Servo.class, RobotConfig.ROTATOR);
         //and the bucket
         this.wrist = hardwareMap.get(Servo.class, RobotConfig.BUCKET);
-        //and the sorter
-        this.sorter = hardwareMap.get(Servo.class, RobotConfig.SORTER);
 
         ensureMotorDirections();
         assumeInitialPosition();
-
-        initializeElbow();
-        initializeShoulder();
     }
 
-    private void initializeShoulder() {
-        //lower shoulder until limit switch is pressed
-        Match.log("Lowering shoulder until limit switch is pressed");
-        while (!shoulderLimitSwitch.getState()) {
-            setShoulderPower(-.2);
+    public boolean resetArm() {
+        if (!elbowReset) {
+            //initialize elbow (lower and then raise) unless that's already done
+            lowerThenRaiseElbow();
+            return false;
         }
-        //raise arm until limit switch is not pressed
-        Match.log("Raising shoulder until limit switch is released");
-        while (shoulderLimitSwitch.getState()) {
-            setShoulderPower(.2);
+        else if (!shoulderReset) {
+            //initialize shoulder (lower and then raise) unless that's already done
+            lowerThenRaiseShoulder();
+            return false;
         }
-        this.shoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        else if (!intakeReset) {
+            abstain();
+            intakeReset = true;
+            return false;
+        }
+        return true;
     }
 
-    private void initializeElbow() {
-        //lower arm until limit switch is pressed
-        Match.log("Lowering elbow until limit switch is pressed");
-        while (!elbowLimitSwitch.getState()) {
-            setElbowPower(.2);
+    private boolean lowerThenRaiseShoulder() {
+        //if the shoulder limit switch has not yet been pressed
+        if (!shoulderLowered) {
+            //find the state of the shoulder limit switch: true means it is pressed
+            if (!(shoulderLowered = shoulderLimitSwitch.getState())) {
+                setShoulderPower(-.2);
+            }
+            else {
+                setShoulderPower(0);
+            }
+            return false;
         }
-        //raise elbow until limit switch is not pressed
-        Match.log("Raising elbow until limit switch is released");
-        while (elbowLimitSwitch.getState()) {
-            setElbowPower(-.2);
+        else if (!shoulderReset) {
+            //if the shoulder had been lowered but not raised since,
+            //find if the limit switch has been raised since it was pressed
+            if (!(shoulderReset = !shoulderLimitSwitch.getState())) {
+                setShoulderPower(.1);
+                return false;
+            }
+            else {
+                //the limit switch is now not pressed, we are done. reset encoder and return true
+                this.shoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                return true;
+            }
         }
-        this.elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        return true;
+    }
+    private boolean lowerThenRaiseElbow() {
+        //if the elbow limit switch has not yet been pressed
+        if (!elbowLowered) {
+            //find the state of the elbow limit switch: true means it is pressed
+            if (!(elbowLowered = elbowLimitSwitch.getState()))
+            {
+                setElbowPower(.4);
+            }
+            else {
+
+                setElbowPower(0);
+            }
+            return false;
+        }
+        else if (!elbowReset) {
+            //if the elbow had been lowered but not raised since,
+            //find if the limit switch has been raised since it was pressed
+            if (!(elbowReset = !elbowLimitSwitch.getState())) {
+                setElbowPower(-.1);
+                return false;
+            }
+            else {
+                //the limit switch is now not pressed, we are done. reset encoder and return true
+                this.elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                return true;
+            }
+        }
+        return elbowReset;
     }
 
     public void ensureMotorDirections() {
         this.elbow.setDirection(DcMotorSimple.Direction.FORWARD);
         this.shoulder.setDirection(DcMotorSimple.Direction.FORWARD);
+        this.inOutMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void assumeInitialPosition() {
@@ -105,23 +158,6 @@ public class Arm {
     public void dumpPositionWrist() {
         this.wrist.setPosition(RobotConfig.WRIST_DUMP_POSITION);
     }
-
-    public void leftSorterIncrementally() {
-        this.sorter.setPosition(sorter.getPosition() - RobotConfig.SERVO_INCREMENT);
-    }
-
-    public void rightSorterIncrementally() {
-        this.sorter.setPosition(sorter.getPosition() + RobotConfig.SERVO_INCREMENT);
-    }
-
-    public void sorterLeft() {
-        this.sorter.setPosition(RobotConfig.SORTER_LEFT_POSITION);
-    }
-
-    public void sorterRight() {
-        this.sorter.setPosition(RobotConfig.SORTER_RIGHT_POSITION);
-    }
-
     public void forwardRotator() {
         this.rotator.setPosition(RobotConfig.ROTATOR_STARTING_POSITION);
     }
@@ -172,6 +208,19 @@ public class Arm {
             }
             case Travel_From_Deposit: {
                 setPositions(RobotConfig.ARM_INTERIM_TRAVEL_POSITION);
+                break;
+            }
+            case PreHang: {
+                setPositions(RobotConfig.ARM_PRE_HANG_POSITION);
+                break;
+            }
+            case Hang1: {
+                setPositions(RobotConfig.ARM_HANG_POSITION_1);
+                break;
+            }
+            case Hang2: {
+                setPositions(RobotConfig.ARM_HANG_POSITION_2);
+                break;
             }
         }
     }
@@ -181,7 +230,6 @@ public class Arm {
         setShoulderPosition(armPosition.getShoulder());
         rotator.setPosition(armPosition.getRotator());
         wrist.setPosition(armPosition.getWrist());
-        sorter.setPosition(armPosition.getSorter());
     }
 
     /**
@@ -258,7 +306,6 @@ public class Arm {
      * @return
      */
     public boolean isWithinRange() {
-        //Match.log(getStatus());
         return shoulderIsWithinRange() && elbowIsWithinRange();
     }
 
@@ -274,10 +321,21 @@ public class Arm {
         this.setInOutPower(1);
     }
     public void abstain() {
-        this.setInOutPower(0);
+        this.inOutMotor.setTargetPosition(
+                this.inOutMotor.getCurrentPosition());
+        this.inOutMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.inOutMotor.setPower(1);
     }
     public void throwUp() {
-        this.setInOutPower(-.4);
+        expel();
+        //this.setInOutPower(-.3);
+    }
+    public void expel() {
+        this.inOutMotor.setTargetPosition(
+                this.inOutMotor.getCurrentPosition()
+                        - (int) (CORE_HEX_MOTOR_COUNT_PER_REV/INOUT_GEAR_RATIO*2));
+        this.inOutMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.inOutMotor.setPower(.5);
     }
 
     /**
@@ -290,11 +348,21 @@ public class Arm {
      * @return
      */
     public String getStatus() {
-        return String.format(Locale.getDefault(), "S:%d->%d@%.2f, E:%d->%d@%.2f, In: %.2f, R:%.3f, W:%.3f, S:%.3f, LS:%s",
+        String shoulderInit = shoulderReset ? "Shoulder initialized" : "Shoulder initializing";
+        String elbowInit = elbowReset ? "Elbow initialized" : "Elbow initializing";
+        String intakeInit = elbowReset ? "Intake initialized" : "Intake initializing";
+
+
+        return String.format(Locale.getDefault(),
+                "Sh:%d->%d@%.2f, El:%d->%d@%.2f, In:%d->%d@%.2f (%s), R:%.3f, W:%.3f, %s, %s, %s",
                 shoulder.getCurrentPosition(), shoulder.getTargetPosition(), shoulder.getPower(),
                 elbow.getCurrentPosition(), elbow.getTargetPosition(), elbow.getPower(),
-                inOutMotor.getPower(),
-                rotator.getPosition(), wrist.getPosition(), sorter.getPosition(),
-                "" + shoulderLimitSwitch.getState());
+                inOutMotor.getCurrentPosition(), inOutMotor.getTargetPosition(), inOutMotor.getPower(), inOutMotor.getMode(),
+                rotator.getPosition(), wrist.getPosition(),
+                shoulderInit, elbowInit, intakeInit);
+    }
+
+    public boolean intakeWithinRange() {
+        return Math.abs(inOutMotor.getTargetPosition() - inOutMotor.getCurrentPosition()) < 5;
     }
 }

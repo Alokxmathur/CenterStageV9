@@ -75,7 +75,10 @@ public class DetectableObject {
     public void clearFoundObjects() {
         if (this.foundObjects != null) {
             for (MatOfPoint contour: this.foundObjects) {
-                contour.release();
+                try {
+                    contour.release();
+                }
+                catch (Throwable e) {}
             }
         }
         this.foundObjects = new ArrayList<>();
@@ -95,7 +98,7 @@ public class DetectableObject {
         if (area > largestArea) {
             largestAreaIndex = this.foundObjects.size() - 1;
             largestArea = area;
-            Match.log("Setting largest area of " + type + " to be " + area);
+            //Match.log("Setting largest area of " + type + " to be " + area);
         }
     }
 

@@ -92,7 +92,7 @@ public class Robot {
     MiniArm miniArm;
     SilverTitansVisionPortal visionPortal;
 
-    boolean everythingButCamerasInitialized = false;
+    boolean armInitialized;
 
     //Our sensors etc.
 
@@ -138,8 +138,6 @@ public class Robot {
         operationThreadSecondary.start();
         this.operationThreadTertiary = new OperationThread(this, "Tertiary", telemetry);
         operationThreadTertiary.start();
-
-        this.everythingButCamerasInitialized = true;
     }
 
     public void initDriveTrain() {
@@ -156,6 +154,14 @@ public class Robot {
         telemetry.update();
         this.visionPortal = new SilverTitansVisionPortal();
         this.visionPortal.init(hardwareMap);
+    }
+
+    /**
+     * This method initializes the elbow and then the shoulder by using the limit switches
+     * It should be called repeatedly from the init_loop of autonomous modes until it is done
+     */
+    public void resetArm() {
+        armInitialized = this.arm.resetArm();
     }
 
     /**
@@ -225,7 +231,7 @@ public class Robot {
     }
 
     public boolean fullyInitialized() {
-        return this.everythingButCamerasInitialized;
+        return armInitialized;
     }
 
     /*
@@ -249,20 +255,10 @@ public class Robot {
             droneLauncher.holdDrone();
         }
         if (gamePad1.left_bumper) {
-            if (gamePad1.left_trigger > .2) {
-                droneLauncher.decrementalHold();
-            }
-            else {
-                droneLauncher.decrementalLaunch();
-            }
+            droneLauncher.releaseHold();
         }
         if (gamePad1.right_bumper) {
-            if (gamePad1.left_trigger > .2) {
-                droneLauncher.incrementalHold();
-            }
-            else {
-                droneLauncher.incrementalLaunch();
-            }
+            droneLauncher.launchDrone();
         }
     }
 
@@ -301,13 +297,13 @@ public class Robot {
                     //the tag ids for red back drop start from 4 and go onto 6
                     tagId += 3;
                 }
-                //align with april tag, staying 7 inches from it
-                DriveToAprilTag.driveToAprilTag(tagId, RobotConfig.CAUTIOUS_SPEED, 10*Field.MM_PER_INCH, driveTrain);
+                //align with april tag, staying 10 inches from it
+                DriveToAprilTag.driveToAprilTag(tagId, RobotConfig.CAUTIOUS_SPEED/2, 10*Field.MM_PER_INCH, driveTrain);
             }
             else {
                 //regular driving
                 double multiplier = gamePad1.right_trigger > 0.1 ? .6 : (gamePad1.left_trigger > 0.1 ? 1 : .3);
-                double x = Math.pow(gamePad1.left_stick_x, 5) * multiplier; // Get left joystick's x-axis value.
+                double x = Math.pow(gamePad1.left_stick_x, 7) * multiplier; // Get left joystick's x-axis value.
                 double y = -Math.pow(gamePad1.left_stick_y, 5) * multiplier; // Get left joystick's y-axis value.
 
                 double rotation = Math.pow(gamePad1.right_stick_x, 5) * multiplier; // Get right joystick's x-axis value for rotation
@@ -360,7 +356,7 @@ public class Robot {
         }
         //If gamePad2 right trigger is pressed, start spitting out pixels
         else if (gamePad2.right_trigger > .2) {
-            arm.throwUp();
+            arm.expel();
         }
         if (gamePad1.b) {
             miniArm.decrementalDrop();
@@ -383,23 +379,27 @@ public class Robot {
             }
             if (gamePad2.b) {
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
-                //queueSecondaryOperation(new ArmOperation(ArmOperation.Type.InterimTravel, "Interim Travel Position"));
-                //queueSecondaryOperation(new WaitOperation(1000, "Wait a sec"));
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Travel, "Travel Position"));
             }
             if (gamePad2.y) {
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Low deposit position"));
-                //queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "Assume dump position"));
             }
             if (gamePad2.x) {
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "High deposit position"));
             }
             if (gamePad1.a) {
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.AutoDeposit, "Auto Deposit pixels"));
             }
-        }
-
-        if (secondaryOperationsCompleted()) {
+            if (gamePad1.b) {
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.PreHang, "Pre-hang position"));
+            }
+            if (gamePad1.y) {
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Hang1, "Hang 1"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Hang2, "Hang 2"));
+            }
             //handle shoulder movement
             if (Math.abs(gamePad2.left_stick_y) > 0.05) {
                 this.arm.setShoulderPower(gamePad2.left_stick_y);

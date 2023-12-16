@@ -15,9 +15,9 @@ import java.util.Locale;
  */
 public class DriveToAprilTag extends Operation {
 
-    public static final double SPEED_GAIN  =  0.02  ;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    public static final double STRAFE_GAIN =  0.015 ;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    public static final double TURN_GAIN   =  0.01  ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+    public static final double SPEED_GAIN  =  0.08  ;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    public static final double STRAFE_GAIN =  0.04 ;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    public static final double TURN_GAIN   =  0.03  ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
     public static final double MAX_AUTO_TURN  = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
 
@@ -84,8 +84,21 @@ public class DriveToAprilTag extends Operation {
             if (Math.abs(rangeError) < 1 && Math.abs(yawError) < 1 && Math.abs(headingError) < 2) {
                 arrived = true;
             }
+            else {
+                /*
+                Match.log(String.format(Locale.getDefault(),
+                        "Drive to april tag: Range eror:%.2f, yawError:%.2f, heading error: %.2f," +
+                                "drive: %.2f, strafe: %.2f, turn: %.2f",
+                        rangeError, yawError, headingError,
+                        drive, strafe, turn));
+
+                 */
+            }
         }
-        if (!arrived) {
+        if (arrived) {
+            driveTrain.stop();
+        }
+        else {
             moveRobot(drive, strafe, turn, driveTrain);
         }
         return arrived;

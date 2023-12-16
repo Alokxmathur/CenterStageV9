@@ -22,8 +22,10 @@ public class DroneLauncher {
         this.droneHolder.setPosition(RobotConfig.DRONE_HOLDER_INITIAL_POSITION);
     }
 
-    public void launchDrone()  {
+    public void releaseHold() {
         this.droneHolder.setPosition(RobotConfig.DRONE_HOLDER_RELEASE_POSITION);
+    }
+    public void launchDrone()  {
         this.droneLauncher.setPosition(RobotConfig.DRONE_TRIGGER_RELEASE_POSITION);
     }
     public void holdDrone() {

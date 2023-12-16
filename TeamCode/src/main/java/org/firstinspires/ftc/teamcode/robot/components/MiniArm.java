@@ -27,9 +27,6 @@ public class MiniArm {
     public void goDrop() {
         this.miniArm.setPosition(RobotConfig.MINIARM_DROP_POSITION);
     }
-    public void goMiddle() {
-        this.miniArm.setPosition(RobotConfig.MINIARM_MIDDLE_POSITION);
-    }
 
     public void incrementalUp() {
         this.miniArm.setPosition(miniArm.getPosition() + RobotConfig.SERVO_INCREMENT);

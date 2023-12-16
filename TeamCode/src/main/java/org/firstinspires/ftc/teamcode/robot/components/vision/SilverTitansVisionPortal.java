@@ -130,6 +130,7 @@ public class SilverTitansVisionPortal {
         this.visionPortal.setProcessorEnabled(objectDetectionVisionProcessor, false);
     }
     public void enableObjectDetection(ObjectDetector.ObjectType type) {
+        this.enableObjectDetection();
         this.objectDetectionVisionProcessor.enableObject(type);
     }
     public void disableObjectDetection(ObjectDetector.ObjectType type) {

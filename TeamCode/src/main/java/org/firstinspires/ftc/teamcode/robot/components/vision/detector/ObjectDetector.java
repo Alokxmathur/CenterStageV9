@@ -308,9 +308,6 @@ public class ObjectDetector {
                     //Match.log("Found " + objectType + " of area: " + area);
                 }
             }
-            else {
-                Match.log("Object not withing bounds: " + boundingRectangle.x*4 + ", " + boundingRectangle.y * 4);
-            }
         }
     }
 

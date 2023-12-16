@@ -68,26 +68,23 @@ public abstract class AutonomousHelper extends OpMode {
     @Override
     public void init_loop() {
         if (match.getAlliance() != Alliance.Color.NotSelected) {
-            //robot.handleGameControllers(gamepad1, gamepad2);
-            if (initErrorHappened) {
-                telemetry.addData("State", "Error: " + initError);
-            } else if (Field.isNotInitialized()) {
+            if (Field.isNotInitialized()) {
                 telemetry.addData("State", "Trajectories initializing, please wait. " +
                         (30 - (int) (new Date().getTime() - initStartTime.getTime()) / 1000));
-                telemetry.addData("Position", robot.getPose());
-            } else if (robot.fullyInitialized()) {
-                robot.getVisionPortal().enableObjectDetection();
-                //enable the alliance specific prop detection
+            } else if (!robot.fullyInitialized()) {
+                robot.resetArm();
                 robot.getVisionPortal().enableObjectDetection(
-                        match.getAlliance() == Alliance.Color.RED ? ObjectDetector.ObjectType.RedProp : ObjectDetector.ObjectType.BlueProp);
-                Field.SpikePosition spikePosition = robot.getSpikePosition();
-                match.setSpikePosition(spikePosition);
-                match.updateTelemetry(telemetry, "Ready");
-            } else {
-                telemetry.addData("Status", "Cameras initializing, please wait");
+                    match.getAlliance() == Alliance.Color.RED
+                            ? ObjectDetector.ObjectType.RedProp
+                            : ObjectDetector.ObjectType.BlueProp);
             }
+            else {
+                robot.handleGameControllers(gamepad1, gamepad2);
+            }
+            Field.SpikePosition spikePosition = robot.getSpikePosition();
+            match.setSpikePosition(spikePosition);
+            match.updateTelemetry(telemetry, "Ready");
         }
-        robot.handleGameControllers(gamepad1, gamepad2);
         telemetry.update();
         Thread.yield();
     }
@@ -95,6 +92,7 @@ public abstract class AutonomousHelper extends OpMode {
     @Override
     public void start() {
         match.setStart();
+        robot.getVisionPortal().disableObjectDetection();
     }
 
     /**

@@ -304,8 +304,10 @@ public class ObjectDetector {
                 if (area >= MINIMUM_AREA || detectableObject.getType() == ObjectType.CrossHair) {
                     //zoom into contour because we had pyrDown twice earlier
                     Core.multiply(contour, new Scalar(4, 4), contour);
-                    detectableObject.addFoundObject(contour, area);
-                    //Match.log("Found " + objectType + " of area: " + area);
+                    synchronized (detectableObject) {
+                        detectableObject.addFoundObject(contour, area);
+                        //Match.log("Found " + objectType + " of area: " + area);
+                    }
                 }
             }
         }

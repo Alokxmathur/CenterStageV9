@@ -27,6 +27,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceRunner;
@@ -56,8 +57,8 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.SilverTitansDriveC
  */
 @Config
 public class SilverTitansMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(4, 0, 0.1);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(4, 0, 0.1);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0.001);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(4, 0, 0.001);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -95,12 +96,13 @@ public class SilverTitansMecanumDrive extends MecanumDrive {
         }
 
 
-        // TODO: adjust the names of the following hardware devices to match your configuration
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.UP
         ));
         imu.initialize(parameters);
+        imu.resetYaw();
+        Match.log("Initialized IMU to yaw of " + imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
 
         leftFront = hardwareMap.get(DcMotorEx.class, RobotConfig.LEFT_FRONT_DRIVE);
         leftRear = hardwareMap.get(DcMotorEx.class, RobotConfig.LEFT_REAR_DRIVE);

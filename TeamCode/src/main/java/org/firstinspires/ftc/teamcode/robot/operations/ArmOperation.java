@@ -24,7 +24,7 @@ import java.util.Locale;
 public class ArmOperation extends Operation {
 
     public enum Type {
-        Intake, Travel, InterimTravel, Travel_From_Deposit, Deposit1, Deposit2, Deposit3, AutoDeposit,
+        Intake, Raised, Travel, InterimTravel, Travel_From_Deposit, Deposit1, Deposit2, Deposit3, AutoDeposit,
         PreHang, Hang1, Hang2,
         Eat, ThrowUp, Expel, Abstain
     }
@@ -55,6 +55,7 @@ public class ArmOperation extends Operation {
             case Hang1:
             case Hang2:
             case PreHang:
+            case Raised:
             {
                 return arm.isWithinRange();
             }
@@ -78,6 +79,7 @@ public class ArmOperation extends Operation {
             case Hang1:
             case Hang2:
             case PreHang:
+            case Raised:
             {
                 arm.setPositions(type);
                 break;

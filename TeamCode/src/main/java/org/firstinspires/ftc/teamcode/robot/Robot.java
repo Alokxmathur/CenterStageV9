@@ -298,7 +298,7 @@ public class Robot {
                     tagId += 3;
                 }
                 //align with april tag, staying 10 inches from it
-                DriveToAprilTag.driveToAprilTag(tagId, RobotConfig.CAUTIOUS_SPEED/2, 10*Field.MM_PER_INCH, driveTrain);
+                DriveToAprilTag.driveToAprilTag(tagId, 10*Field.MM_PER_INCH, driveTrain);
             }
             else {
                 //regular driving

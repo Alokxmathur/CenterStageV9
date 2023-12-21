@@ -26,7 +26,7 @@ public class DriveInDirectionOperation extends DriveForDistanceOperation {
      */
     public DriveInDirectionOperation(double travelDistance, double heading,
                                      double speed, String title) {
-        super(travelDistance, travelDistance, title);
+        super(travelDistance, speed, title);
         this.distance = travelDistance;
         this.speed = speed;
         this.direction = heading;
@@ -51,7 +51,7 @@ public class DriveInDirectionOperation extends DriveForDistanceOperation {
             // if driving in reverse, the motor correction also needs to be reversed
             if (distance < 0)
                 steer *= -1.0;
-            double speedToUse = new Date().getTime() - this.getStartTime().getTime() < 500 ? 0.1 : speed;
+            double speedToUse = speed;
             double leftSpeed = speedToUse - steer;
             double rightSpeed = speedToUse + steer;
 
@@ -62,7 +62,8 @@ public class DriveInDirectionOperation extends DriveForDistanceOperation {
                 rightSpeed /= max;
             }
 
-            Match.log(String.format(Locale.getDefault(), "Setting power LF:%.2f,LR:%.2f,RF:%.2f,RR%.2f", leftSpeed, leftSpeed, rightSpeed, rightSpeed));
+            Match.log(String.format(Locale.getDefault(), "%.2f vs %.2f, Bearing error: %.2f, Setting power LF:%.2f,LR:%.2f,RF:%.2f,RR%.2f",
+                    Math.toDegrees(direction), currentBearing, bearingError, leftSpeed, leftSpeed, rightSpeed, rightSpeed));
 
             driveTrain.setLeftFrontPower(leftSpeed);
             driveTrain.setLeftRearPower(leftSpeed);

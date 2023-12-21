@@ -59,6 +59,7 @@ public class Arm {
 
     public boolean resetArm() {
         if (!elbowReset) {
+            //retainShoulder();
             //initialize elbow (lower and then raise) unless that's already done
             lowerThenRaiseElbow();
             return false;
@@ -220,6 +221,10 @@ public class Arm {
             }
             case Hang2: {
                 setPositions(RobotConfig.ARM_HANG_POSITION_2);
+                break;
+            }
+            case Raised: {
+                setPositions(RobotConfig.ARM_RAISED_POSITION);
                 break;
             }
         }

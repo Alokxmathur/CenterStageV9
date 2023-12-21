@@ -5,7 +5,7 @@ package org.firstinspires.ftc.teamcode.game;
  */
 public class Field {
     public static final float MM_PER_INCH = 25.4f;
-
+    public static final float TILE_WIDTH = 24 * MM_PER_INCH;
     public static volatile boolean initialized = true;
     public static final Object mutex = new Object();
 

@@ -53,7 +53,9 @@
     public static final double MINIARM_INITIAL_POSITION = 0.53;
     public static final double MINIARM_DROP_POSITION = .274;
 
-    public static final double CAUTIOUS_SPEED = 0.5;
+    public static final double CAUTIOUS_SPEED = 0.6;
+    public static final double APRIL_TAG_SPEED = 0.3;
+
 
     //Robot center from back is five and half inches away
     public static double ROBOT_CENTER_FROM_BACK = 8 * Field.MM_PER_INCH;
@@ -73,11 +75,11 @@
     public static final double MAX_SHOULDER_POWER = 0.5;
 
     public static final int SHOULDER_STARTING_POSITION = 0;
-    public static final int SHOULDER_INTAKE_POSITION = 390;
+    public static final int SHOULDER_INTAKE_POSITION = 180;
     public static final int SHOULDER_INTERIM_TRAVEL_POSITION = 0;
-    public static final int SHOULDER_TRAVEL_POSITION = 240;
-    public static final int SHOULDER_DEPOSIT_POSITION = 1730;
-    public static final int SHOULDER_AUTO_DEPOSIT_POSITION = 1300;
+    public static final int SHOULDER_TRAVEL_POSITION = 140;
+    public static final int SHOULDER_DEPOSIT_POSITION = 1630;
+    public static final int SHOULDER_AUTO_DEPOSIT_POSITION = 1200;
 
     public static final int ELBOW_STARTING_POSITION = 0;
     public static final int ELBOW_INTAKE_POSITION = -1920;
@@ -100,12 +102,12 @@
             ROTATOR_INTAKE_POSITION,
             WRIST_INTAKE_POSITION);
     public static final ArmPosition ARM_DEPOSIT_POSITION_1 = new ArmPosition(
-            1085,
+            630,
             -1372,
             0,
             .304);
     public static final ArmPosition ARM_DEPOSIT_POSITION_2 = new ArmPosition(
-            1700,
+            1230,
             -1677,
             0,
             .269);
@@ -115,9 +117,14 @@
             ROTATOR_TURNED_OVER_POSITION,
             WRIST_DEPOSIT_POSITION_3);
     public static final ArmPosition ARM_TRAVEL_POSITION = new ArmPosition(
-            240,
+            140,
             ELBOW_TRAVEL_POSITION,
             ROTATOR_INTAKE_POSITION,
+            WRIST_TRAVEL_POSITION);
+    public static final ArmPosition ARM_RAISED_POSITION = new ArmPosition(
+            140,
+            -620,
+            ROTATOR_STARTING_POSITION,
             WRIST_TRAVEL_POSITION);
     public static final ArmPosition ARM_INTERIM_TRAVEL_POSITION = new ArmPosition(
             SHOULDER_INTERIM_TRAVEL_POSITION,
@@ -126,25 +133,25 @@
             WRIST_INTERIM_TRAVEL_POSITION);
 
     public static final ArmPosition ARM_AUTO_DEPOSIT_POSITION = new ArmPosition(
-            1083,
+            500,
             -1490,
             0,
             .319);
 
     public static final ArmPosition ARM_PRE_HANG_POSITION = new ArmPosition(
-            2400,
+            2300,
             -2000,
             0,
             .324);
 
 
     public static final ArmPosition ARM_HANG_POSITION_1 = new ArmPosition(
-            2400,
+            2300,
             -50,
             0,
             .324);
     public static final ArmPosition ARM_HANG_POSITION_2 = new ArmPosition(
-            48,
+            0,
             -50,
             0,
             .324);

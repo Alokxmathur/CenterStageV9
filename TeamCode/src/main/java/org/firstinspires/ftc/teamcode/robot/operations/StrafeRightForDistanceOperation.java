@@ -12,7 +12,6 @@ public class StrafeRightForDistanceOperation extends DriveTrainOperation{
         super();
         this.distance = distance;
         this.speed = speed;
-        this.driveTrain = driveTrain;
         this.title = title;
     }
 

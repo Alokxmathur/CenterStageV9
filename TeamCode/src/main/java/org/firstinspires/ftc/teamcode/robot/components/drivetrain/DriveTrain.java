@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.robot.operations.FollowTrajectory;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeLeftForDistanceOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeLeftForDistanceWithHeadingOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeRightForDistanceOperation;
+import org.firstinspires.ftc.teamcode.robot.operations.StrafeRightToAprilTagOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.TurnAntiClockwiseOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.TurnClockwiseOperation;
 
@@ -30,7 +31,7 @@ import java.util.Locale;
 public class DriveTrain extends SilverTitansMecanumDrive {
     public static final int WITHIN_RANGE = 30;
     public static final double     P_TURN_COEFFICIENT            = 1;     // Larger is more responsive, but also less stable
-    public static final double P_DRIVE_COEFFICIENT = 0.025 * Math.PI;     // Larger is more responsive, but also less stable
+    public static final double P_DRIVE_COEFFICIENT = 0.0125 * Math.PI;     // Larger is more responsive, but also less stable
 
     int lastLeftFrontEncoderValue;
     int lastLeftRearEncoderValue;
@@ -456,4 +457,6 @@ public class DriveTrain extends SilverTitansMecanumDrive {
         return ret;
     }
 
+    public void handleOperation(StrafeRightToAprilTagOperation strafeRightToAprilTagOperation) {
+    }
 }

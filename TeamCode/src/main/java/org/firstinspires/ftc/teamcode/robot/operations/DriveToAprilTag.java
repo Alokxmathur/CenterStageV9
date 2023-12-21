@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Match;
+import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -22,7 +23,6 @@ public class DriveToAprilTag extends Operation {
     public static final double MAX_AUTO_TURN  = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
 
     protected double distance;
-    protected double speed;
     protected int aprilTagId;
     protected DriveTrain driveTrain;
 
@@ -31,13 +31,10 @@ public class DriveToAprilTag extends Operation {
      * Create an operation to drive in the specified heading
      * @param distance - the distance to be away from the april tag
      * @param aprilTagId - the april tag id to align with
-     * @param speed
      * @param title
      */
-    public DriveToAprilTag(double distance, int aprilTagId,
-                           double speed, String title) {
+    public DriveToAprilTag(double distance, int aprilTagId, String title) {
         this.distance = distance;
-        this.speed = speed;
         this.aprilTagId = aprilTagId;
         this.driveTrain = Match.getInstance().getRobot().getDriveTrain();
         this.title = title;
@@ -50,19 +47,18 @@ public class DriveToAprilTag extends Operation {
     }
 
     public boolean isComplete() {
-        return driveToAprilTag(aprilTagId, speed, distance, driveTrain);
+        return driveToAprilTag(aprilTagId, distance, driveTrain);
     }
 
     /**
      * Drive the robot so that it is aligned with a specified april tag id and is within the
      * specified distance from it
      * @param aprilTagId
-     * @param speed
      * @param distance - in mms
      * @param driveTrain
      * @return
      */
-    public static boolean driveToAprilTag(int aprilTagId, double speed, double distance, DriveTrain driveTrain) {
+    public static boolean driveToAprilTag(int aprilTagId, double distance, DriveTrain driveTrain) {
         double drive = 0, turn = 0, strafe = 0;
         boolean arrived = false;
         AprilTagDetection desiredTag;
@@ -72,6 +68,7 @@ public class DriveToAprilTag extends Operation {
             double headingError = desiredTag.ftcPose.bearing;
             double yawError = desiredTag.ftcPose.yaw;
 
+            double speed = RobotConfig.APRIL_TAG_SPEED;
             // Use the speed and turn "gains" to calculate how we want the robot to move.
             drive = Range.clip(rangeError * SPEED_GAIN, -speed, speed);
             turn = Range.clip(headingError * TURN_GAIN, -speed * .6, speed * .6);
@@ -95,6 +92,10 @@ public class DriveToAprilTag extends Operation {
                  */
             }
         }
+        else {
+            //if we are not seeing the tag, we say we have arrived as there is no chance we are going to see it
+            arrived = true;
+        }
         if (arrived) {
             driveTrain.stop();
         }
@@ -114,10 +115,6 @@ public class DriveToAprilTag extends Operation {
         driveTrain.stop();
     }
 
-    public double getSpeed() {
-        return this.speed;
-    }
-
     public double getDistance() {
         return this.distance;
     }
@@ -130,7 +127,7 @@ public class DriveToAprilTag extends Operation {
     public static AprilTagDetection findTarget(int tagToFind) {
         // Step through the list of detected tags and look for a matching tag
         List<AprilTagDetection> currentDetections = Match.getInstance().getRobot().getVisionPortal().getAprilTags();
-        Match.log("Found " + currentDetections.size() + " april tags");
+        //Match.log("Found " + currentDetections.size() + " april tags");
         if (currentDetections.size() > 0) {
             for (AprilTagDetection aprilTag : currentDetections) {
                 // Look to see if we have size info on this tag.
@@ -142,6 +139,9 @@ public class DriveToAprilTag extends Operation {
                     }
                 }
             }
+        }
+        else {
+            Match.log("No april tags to align with");
         }
         return null;
     }

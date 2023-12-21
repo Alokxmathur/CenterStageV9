@@ -45,9 +45,9 @@ public class SilverTitansDriveConstants {
      * angular distances although most angular parameters are wrapped in Math.toRadians() for
      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
-    public static double WHEEL_RADIUS = 50.0/Field.MM_PER_INCH; // Gobilda 50 mm radius mecanum
+    public static double WHEEL_RADIUS = 75.0/2.0/Field.MM_PER_INCH; // Rev 75 mm diameter mecanum
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 15; // in
+    public static double TRACK_WIDTH = 14; // in
     public static double TRACK_LENGTH = 8; //  in
 
     /*
@@ -73,7 +73,7 @@ public class SilverTitansDriveConstants {
     public static double MAX_ANG_ACCEL = Math.toRadians(90);
 
     public static double encoderTicksToInches(double ticks) {
-        return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
+        return WHEEL_RADIUS * 2.0 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
     }
 
     public static double encoderTicksToMMs(double ticks) {

@@ -133,7 +133,7 @@
             WRIST_INTERIM_TRAVEL_POSITION);
 
     public static final ArmPosition ARM_AUTO_DEPOSIT_POSITION = new ArmPosition(
-            500,
+            1080,
             -1490,
             0,
             .319);

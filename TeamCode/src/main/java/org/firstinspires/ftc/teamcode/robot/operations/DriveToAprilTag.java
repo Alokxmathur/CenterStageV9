@@ -92,10 +92,10 @@ public class DriveToAprilTag extends Operation {
                  */
             }
         }
-        else {
+        /*else {
             //if we are not seeing the tag, we say we have arrived as there is no chance we are going to see it
             arrived = true;
-        }
+        }*/
         if (arrived) {
             driveTrain.stop();
         }

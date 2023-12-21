@@ -358,11 +358,11 @@ public class Robot {
         else if (gamePad2.right_trigger > .2) {
             arm.expel();
         }
-        if (gamePad1.b) {
-            miniArm.decrementalDrop();
+        if (gamePad1.start) {
+            miniArm.goDrop();
         }
-        if (gamePad1.y) {
-            miniArm.incrementalUp();
+        if (gamePad1.back) {
+            miniArm.goUp();
         }
         /*
             gamePad 2 dpad up/down open/close claw incrementally

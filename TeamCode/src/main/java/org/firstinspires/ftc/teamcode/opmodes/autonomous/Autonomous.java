@@ -125,7 +125,7 @@ public abstract class Autonomous extends AutonomousHelper {
 
             state = new State("Drop yellow pixel");
             //run into backdrop
-            state.addPrimaryOperation(new DriveToAprilTag(11.5 * Field.MM_PER_INCH, desiredAprilTagId, "Drive to April Tag"));
+            state.addPrimaryOperation(new DriveToAprilTag(12 * Field.MM_PER_INCH, desiredAprilTagId, "Drive to April Tag"));
             //push yellow pixel out
             state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Expel, "Expel pixel"));
             //state.addPrimaryOperation(new WaitOperation(3000, "wait three seconds"));

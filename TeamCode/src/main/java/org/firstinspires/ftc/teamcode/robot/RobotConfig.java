@@ -50,8 +50,8 @@
     public static final double DRONE_HOLDER_RELEASE_POSITION = 0.5;
     public static final double TRIGGER_INCREMENT = 0.01;
 
-    public static final double MINIARM_INITIAL_POSITION = 0.53;
-    public static final double MINIARM_DROP_POSITION = .274;
+    public static final double MINIARM_INITIAL_POSITION = 0.5;
+    public static final double MINIARM_DROP_POSITION = .4;
 
     public static final double CAUTIOUS_SPEED = 0.6;
     public static final double APRIL_TAG_SPEED = 0.3;

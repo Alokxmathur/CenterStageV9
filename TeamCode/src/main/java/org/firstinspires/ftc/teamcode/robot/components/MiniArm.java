@@ -13,7 +13,6 @@ public class MiniArm {
 
     public MiniArm (HardwareMap hardwareMap) {
         this.miniArm = hardwareMap.get(Servo.class, RobotConfig.MINIARM);
-
         assumeInitialPosition();
     }
 

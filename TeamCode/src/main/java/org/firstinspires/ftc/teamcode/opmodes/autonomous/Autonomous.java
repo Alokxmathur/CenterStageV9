@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.robot.operations.DriveForDistanceOperation
 import org.firstinspires.ftc.teamcode.robot.operations.DriveInDirectionOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.DriveToAprilTag;
 import org.firstinspires.ftc.teamcode.robot.operations.LedOperation;
+import org.firstinspires.ftc.teamcode.robot.operations.MiniArmOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.State;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeLeftForDistanceOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeLeftToAprilTagOperation;
@@ -89,12 +90,28 @@ public abstract class Autonomous extends AutonomousHelper {
                 new DriveInDirectionOperation(DISTANCE_TO_MIDDLE_OF_SPIKES, 0, RobotConfig.CAUTIOUS_SPEED, "Leave wall"));
         //Turn so we can push the prop with the front of the robot
         state.addPrimaryOperation(new BearingOperation(bearingToPushProp, robot.getDriveTrain(), "Point front to prop"));
+        if (match.getSpikePosition() == Field.SpikePosition.Right || match.getSpikePosition() == Field.SpikePosition.Middle) {
         //drive forward into the prop to push it away
         state.addPrimaryOperation(
                 new DriveForDistanceOperation(distanceToPushProp, RobotConfig.CAUTIOUS_SPEED, "Bump prop"));
+        }
+        else {
+            state.addPrimaryOperation(
+                    new DriveForDistanceOperation(3 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Bump prop"));
+        }
+        //Drop pixel
+        state.addPrimaryOperation(
+                new MiniArmOperation(robot.getMiniArm(), MiniArmOperation.Type.Drop, "Drop purple pixel")
+        );
+        if (match.getSpikePosition() == Field.SpikePosition.Right || match.getSpikePosition() == Field.SpikePosition.Middle) {
         //drive backwards to get away from prop
         state.addPrimaryOperation(
                 new DriveForDistanceOperation(-distanceToPushProp, RobotConfig.CAUTIOUS_SPEED, "Away from prop"));
+        }
+        else {
+            state.addPrimaryOperation(
+                    new DriveForDistanceOperation(-6 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Bump prop"));
+        }
         //special case where dropped pixel might be in the way to the backdrop
         if ((spikePosition == Field.SpikePosition.Right && match.getAlliance() == Alliance.Color.RED)
             || (spikePosition == Field.SpikePosition.Left && match.getAlliance() == Alliance.Color.BLUE)) {
@@ -125,7 +142,7 @@ public abstract class Autonomous extends AutonomousHelper {
 
             state = new State("Drop yellow pixel");
             //run into backdrop
-            state.addPrimaryOperation(new DriveToAprilTag(12 * Field.MM_PER_INCH, desiredAprilTagId, "Drive to April Tag"));
+            state.addPrimaryOperation(new DriveToAprilTag(11.5 * Field.MM_PER_INCH, desiredAprilTagId, "Drive to April Tag"));
             //push yellow pixel out
             state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Expel, "Expel pixel"));
             //state.addPrimaryOperation(new WaitOperation(3000, "wait three seconds"));

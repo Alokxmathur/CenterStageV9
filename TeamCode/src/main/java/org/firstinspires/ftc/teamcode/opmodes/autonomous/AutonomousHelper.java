@@ -73,6 +73,7 @@ public abstract class AutonomousHelper extends OpMode {
                         (30 - (int) (new Date().getTime() - initStartTime.getTime()) / 1000));
             } else if (!robot.fullyInitialized()) {
                 robot.resetArm();
+                robot.getVisionPortal().setExposureAndGain();
                 robot.getVisionPortal().enableObjectDetection(
                     match.getAlliance() == Alliance.Color.RED
                             ? ObjectDetector.ObjectType.RedProp
@@ -92,6 +93,7 @@ public abstract class AutonomousHelper extends OpMode {
     @Override
     public void start() {
         match.setStart();
+        robot.getDriveTrain().resetYaw();
         robot.getVisionPortal().disableObjectDetection();
     }
 

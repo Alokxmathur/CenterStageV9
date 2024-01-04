@@ -35,6 +35,7 @@ public class StrafeRightToAprilTagOperation extends DriveTrainOperation{
 
     @Override
     public void startOperation() {
+        Match.getInstance().getRobot().getLed().turnOnWhiteLED(true);
         this.driveTrain.drive(Math.atan2(RobotConfig.APRIL_TAG_SPEED, 0), Math.hypot(RobotConfig.APRIL_TAG_SPEED, 0), 0);
     }
 }

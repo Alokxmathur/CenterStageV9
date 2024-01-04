@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot.operations;
 
+import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
 
 import java.util.Locale;
@@ -19,11 +20,11 @@ public class BearingOperation extends DriveToPositionOperation {
      * @param desiredBearing - desired bearing (radians)
      * @param title
      */
-    public BearingOperation(double desiredBearing, DriveTrain driveTrain, String title) {
+    public BearingOperation(double desiredBearing, String title) {
         super(null, title);
         this.title = title;
         this.desiredBearing = desiredBearing;
-        this.driveTrain = driveTrain;
+        this.driveTrain = Match.getInstance().getRobot().getDriveTrain();
     }
 
     public String toString() {

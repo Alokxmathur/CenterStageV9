@@ -6,12 +6,14 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.game.Alliance;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.components.Arm;
+import org.firstinspires.ftc.teamcode.robot.components.ColorSensor;
 import org.firstinspires.ftc.teamcode.robot.components.DroneLauncher;
 import org.firstinspires.ftc.teamcode.robot.components.LED;
 import org.firstinspires.ftc.teamcode.robot.components.MiniArm;
@@ -21,6 +23,8 @@ import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.DriveToAprilTag;
 import org.firstinspires.ftc.teamcode.robot.operations.Operation;
 import org.firstinspires.ftc.teamcode.robot.operations.OperationThread;
+
+import java.util.Locale;
 
 /**
  * This class represents our robot.
@@ -92,6 +96,8 @@ public class Robot {
     MiniArm miniArm;
     SilverTitansVisionPortal visionPortal;
 
+    ColorSensor colorSensor;
+
     boolean armInitialized;
 
     //Our sensors etc.
@@ -127,6 +133,7 @@ public class Robot {
 
         this.arm = new Arm(hardwareMap);
         this.miniArm = new MiniArm(hardwareMap);
+        this.colorSensor = new ColorSensor(hardwareMap);
 
         telemetry.addData("Status", "Creating operations thread, please wait");
         telemetry.update();
@@ -359,10 +366,10 @@ public class Robot {
             arm.expel();
         }
         if (gamePad1.start) {
-            miniArm.goDrop();
+            miniArm.incrementalUp();
         }
         if (gamePad1.back) {
-            miniArm.goUp();
+            miniArm.decrementalDrop();
         }
         /*
             gamePad 2 dpad up/down open/close claw incrementally
@@ -471,5 +478,14 @@ public class Robot {
 
     public String getLauncherStatus() {
         return this.droneLauncher.getStatus();
+    }
+
+    public NormalizedRGBA getColors() {
+        return this.colorSensor.getColors();
+    }
+    public String getColorStatus() {
+        NormalizedRGBA colors = getColors();
+        return String.format(Locale.getDefault(), "R:%.3f,G:%.3f,B:%.3f",
+                colors.red, colors.green, colors.blue);
     }
 }

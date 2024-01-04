@@ -112,6 +112,7 @@ public class Match {
             telemetry.addData("MiniArm", robot.getMiniArmStatus());
             telemetry.addData("Launcher", robot.getLauncherStatus());
             telemetry.addData("Camera", robot.getVisionPortal().getStatus());
+            telemetry.addData("Colors", robot.getColorStatus());
             robot.getVisionPortal().telemetryAprilTag(telemetry);
 
             updateDashBoard(status);

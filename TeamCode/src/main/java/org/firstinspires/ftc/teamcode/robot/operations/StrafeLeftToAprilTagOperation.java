@@ -10,6 +10,6 @@ public class StrafeLeftToAprilTagOperation extends StrafeRightToAprilTagOperatio
 
     @Override
     public void startOperation() {
-        this.driveTrain.drive(Math.atan2(-RobotConfig.APRIL_TAG_SPEED, 0), Math.hypot(-RobotConfig.APRIL_TAG_SPEED, 0), 0);
+        this.driveTrain.drive(Math.atan2(-RobotConfig.APRIL_TAG_SPEED, 0), Math.hypot(RobotConfig.APRIL_TAG_SPEED, 0), 0);
     }
 }

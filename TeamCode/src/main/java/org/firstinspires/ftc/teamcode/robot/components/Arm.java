@@ -203,11 +203,7 @@ public class Arm {
                 setPositions(RobotConfig.ARM_TRAVEL_POSITION);
                 break;
             }
-            case InterimTravel:Travel: {
-                setPositions(RobotConfig.ARM_INTERIM_TRAVEL_POSITION);
-                break;
-            }
-            case Travel_From_Deposit: {
+            case InterimTravel: {
                 setPositions(RobotConfig.ARM_INTERIM_TRAVEL_POSITION);
                 break;
             }
@@ -333,12 +329,11 @@ public class Arm {
     }
     public void throwUp() {
         expel();
-        //this.setInOutPower(-.3);
     }
     public void expel() {
         this.inOutMotor.setTargetPosition(
                 this.inOutMotor.getCurrentPosition()
-                        - (int) (CORE_HEX_MOTOR_COUNT_PER_REV/INOUT_GEAR_RATIO*2));
+                        - (int) (CORE_HEX_MOTOR_COUNT_PER_REV/INOUT_GEAR_RATIO * 2));
         this.inOutMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         this.inOutMotor.setPower(.5);
     }

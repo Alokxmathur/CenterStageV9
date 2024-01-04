@@ -108,6 +108,7 @@ public class DriveToAprilTag extends Operation {
 
     @Override
     public void startOperation() {
+        Match.getInstance().getRobot().getLed().turnOnWhiteLED(true);
     }
 
     @Override

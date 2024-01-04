@@ -100,6 +100,7 @@ public class DriverControlledOperation extends OpMode {
     @Override
     public void start() {
         match.setTeleopStartTime(new Date());
+        robot.getLed().turnOnWhiteLED(true);
     }
 
     /*

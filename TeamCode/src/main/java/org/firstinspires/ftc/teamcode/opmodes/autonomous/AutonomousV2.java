@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.robot.operations.BearingOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.DriveForDistanceOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.DriveInDirectionOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.DriveToAprilTag;
+import org.firstinspires.ftc.teamcode.robot.operations.DriveToColorOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.LedOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.MiniArmOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.State;
@@ -18,29 +19,27 @@ import org.firstinspires.ftc.teamcode.robot.operations.StrafeLeftForDistanceOper
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeLeftToAprilTagOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeRightForDistanceOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.StrafeRightToAprilTagOperation;
+import org.firstinspires.ftc.teamcode.robot.operations.WaitOperation;
 
-public abstract class Autonomous extends AutonomousHelper {
-    double DISTANCE_TO_MIDDLE_OF_SPIKES = 24.0 * Field.MM_PER_INCH;
-    double DISTANCE_TO_PUSH_PROP = 8*Field.MM_PER_INCH;
+public abstract class AutonomousV2 extends AutonomousHelper {
 
     @Override
     public void start() {
         super.start();
 
-        if (match.getAlliance() == Alliance.Color.NotSelected) {
-            return;
-        }
+        //stop looking for prop
+        robot.getVisionPortal().disableObjectDetection();
+
+        Alliance.Color alliance = match.getAlliance();
+        Field.StartingPosition startingPosition = match.getStartingPosition();
         Field.SpikePosition spikePosition = match.getSpikePosition();
         int desiredAprilTagId = 0;
-        double bearingToBackdrop;
+        double bearingToBackdrop, bearingToAudience, bearingToSpike = 0;
 
-        double distanceToPushProp = DISTANCE_TO_PUSH_PROP;
-        double bearingToPushProp = 0;
         switch (spikePosition) {
-            case NotSeen:
             case Left: {
-                bearingToPushProp = Math.toRadians(45);
-                if (match.getAlliance() == Alliance.Color.BLUE) {
+                bearingToSpike = Math.toRadians(65.0);
+                if (alliance == Alliance.Color.BLUE) {
                     desiredAprilTagId = 1;
                 }
                 else {
@@ -49,19 +48,18 @@ public abstract class Autonomous extends AutonomousHelper {
                 break;
             }
             case Middle: {
-                bearingToPushProp = Math.toRadians(0);
-                if (match.getAlliance() == Alliance.Color.BLUE) {
+                bearingToSpike = Math.toRadians(0);
+                if (alliance == Alliance.Color.BLUE) {
                     desiredAprilTagId = 2;
                 }
                 else {
                     desiredAprilTagId = 5;
                 }
-                distanceToPushProp -= 3*Field.MM_PER_INCH;
                 break;
             }
             case Right: {
-                bearingToPushProp = Math.toRadians(-45);
-                if (match.getAlliance() == Alliance.Color.BLUE) {
+                bearingToSpike = Math.toRadians(-65.0);
+                if (alliance == Alliance.Color.BLUE) {
                     desiredAprilTagId = 3;
                 }
                 else {
@@ -70,14 +68,19 @@ public abstract class Autonomous extends AutonomousHelper {
                 break;
             }
         }
-        if (match.getAlliance() == Alliance.Color.RED) {
+        if (alliance == Alliance.Color.RED) {
             //Red Alliance
             bearingToBackdrop = Math.toRadians(-90);
         }
         else {
             //Blue alliance
             bearingToBackdrop = Math.toRadians(90);
-         }
+        }
+        bearingToAudience = -bearingToBackdrop;
+        
+        boolean nearAudience = (alliance == Alliance.Color.RED && startingPosition == Field.StartingPosition.Left) ||
+                (alliance == Alliance.Color.BLUE && startingPosition == Field.StartingPosition.Right);
+        boolean startingNearBackDrop = !nearAudience;
 
         State state = new State("Deliver Purple Pixel");
 
@@ -85,46 +88,57 @@ public abstract class Autonomous extends AutonomousHelper {
         state.addTertiaryOperation(new LedOperation(robot.getLed(), RevBlinkinLedDriver.BlinkinPattern.BLUE_VIOLET, "Purple pixel mode"));
         //raise the arm
         state.addSecondaryOperation(new ArmOperation(ArmOperation.Type.Raised, "Get arm to raised level"));
-        //Move forward a little to clear the wall so we can rotate
+        //Move forward to the middle spike mark
         state.addPrimaryOperation(
-                new DriveInDirectionOperation(DISTANCE_TO_MIDDLE_OF_SPIKES, 0, RobotConfig.CAUTIOUS_SPEED, "Leave wall"));
-        //Turn so we can push the prop with the front of the robot
-        state.addPrimaryOperation(new BearingOperation(bearingToPushProp, "Point front to prop"));
-        if (match.getSpikePosition() == Field.SpikePosition.Right || match.getSpikePosition() == Field.SpikePosition.Middle) {
-        //drive forward into the prop to push it away
-        state.addPrimaryOperation(
-                new DriveForDistanceOperation(distanceToPushProp, RobotConfig.CAUTIOUS_SPEED, "Bump prop"));
+                new DriveToColorOperation(
+                        Match.getInstance().getAlliance() == Alliance.Color.RED ? DriveToColorOperation.Type.RED : DriveToColorOperation.Type.BLUE,
+                        0, RobotConfig.CAUTIOUS_SPEED/2, "Reach middle spike"));
+
+        if (spikePosition != Field.SpikePosition.Middle) {
+            state.addPrimaryOperation(new DriveInDirectionOperation(
+                    -6*Field.MM_PER_INCH, 0, RobotConfig.CAUTIOUS_SPEED/2,
+                    "Come back a bit before turning towards spike"));
+            state.addPrimaryOperation(new BearingOperation(bearingToSpike, "Face " + spikePosition + " spike"));
+            //drive up to spike
+            state.addPrimaryOperation(
+                    new DriveToColorOperation(
+                            Match.getInstance().getAlliance() == Alliance.Color.RED ? DriveToColorOperation.Type.RED : DriveToColorOperation.Type.BLUE,
+                            bearingToSpike, RobotConfig.CAUTIOUS_SPEED, "Reach spike on " + spikePosition));
+            state.addPrimaryOperation(new DriveInDirectionOperation(
+                    -3*Field.MM_PER_INCH, bearingToSpike, RobotConfig.CAUTIOUS_SPEED,
+                    "Come back a bit before dropping purple pixel"));
+            //Drop pixel
+            state.addPrimaryOperation(
+                    new MiniArmOperation(robot.getMiniArm(), MiniArmOperation.Type.Drop, "Drop purple pixel")
+            );
+            state.addPrimaryOperation(new DriveInDirectionOperation(
+                    -9*Field.MM_PER_INCH, bearingToSpike, RobotConfig.CAUTIOUS_SPEED,
+                    "Come back a more to clear purple pixel"));
+
         }
         else {
+            //middle spike position
+            state.addPrimaryOperation(new DriveInDirectionOperation(
+                    -3*Field.MM_PER_INCH, 0, RobotConfig.CAUTIOUS_SPEED,
+                    "Come back a bit before dropping purple pixel"));
+            //Drop pixel
             state.addPrimaryOperation(
-                    new DriveForDistanceOperation(3 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Bump prop"));
+                    new MiniArmOperation(robot.getMiniArm(), MiniArmOperation.Type.Drop, "Drop purple pixel")
+            );
+            state.addPrimaryOperation(new DriveInDirectionOperation(
+                    -9*Field.MM_PER_INCH, bearingToSpike, RobotConfig.CAUTIOUS_SPEED/2,
+                    "Come back a more to clear purple pixel"));
         }
-        //Drop pixel
-        state.addPrimaryOperation(
-                new MiniArmOperation(robot.getMiniArm(), MiniArmOperation.Type.Drop, "Drop purple pixel")
-        );
-        if (match.getSpikePosition() == Field.SpikePosition.Right || match.getSpikePosition() == Field.SpikePosition.Middle) {
-        //drive backwards to get away from prop
-        state.addPrimaryOperation(
-                new DriveForDistanceOperation(-distanceToPushProp, RobotConfig.CAUTIOUS_SPEED, "Away from prop"));
+        if (nearAudience) {
+            state.addPrimaryOperation(new BearingOperation(bearingToAudience, "Face audience"));
         }
         else {
-            state.addPrimaryOperation(
-                    new DriveForDistanceOperation(-6 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Bump prop"));
-        }
-        //special case where dropped pixel might be in the way to the backdrop
-        if ((spikePosition == Field.SpikePosition.Right && match.getAlliance() == Alliance.Color.RED)
-            || (spikePosition == Field.SpikePosition.Left && match.getAlliance() == Alliance.Color.BLUE)) {
-            //back up some more so we don't run over purple pixel
-            state.addPrimaryOperation(
-                    new DriveForDistanceOperation(-5*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Backup more so we don't run over purple pixel"));
+            state.addPrimaryOperation(new BearingOperation(bearingToBackdrop, "Face backdrop"));
         }
         state.setCompletionBasedUpon(State.CompletionBasedUpon.PRIMARY_OPERATIONS);
         states.add(state);
-
         //we try to drop yellow pixel and navigate if we are starting close to the backdrop
-        if ((match.getStartingPosition() == Field.StartingPosition.Right && match.getAlliance() == Alliance.Color.RED)
-                || (match.getStartingPosition() == Field.StartingPosition.Left && match.getAlliance() == Alliance.Color.BLUE)) {
+        if (startingNearBackDrop) {
 
             //at this point we should be facing the backdrop
             state = new State("Approach backdrop");
@@ -132,12 +146,12 @@ public abstract class Autonomous extends AutonomousHelper {
             state.addTertiaryOperation(
                     new LedOperation(robot.getLed(), RevBlinkinLedDriver.BlinkinPattern.YELLOW, "Yellow pixel mode"));
 
-            //rotate to face the backdrop
-            state.addPrimaryOperation(new BearingOperation(bearingToBackdrop, "Face backdrop"));
             //drive up to the proper April Tag and also lower arm to deposit yellow pixel
             state.addPrimaryOperation(new DriveToAprilTag(20 * Field.MM_PER_INCH, desiredAprilTagId, "Drive to April Tag"));
-            //state.addPrimaryOperation(new StrafeRightForDistanceOperation(3*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Shift to line up pixel"));
+            state.addSecondaryOperation(new ArmOperation(ArmOperation.Type.Eat, "Start eating pixel so it does not fall off"));
             state.addSecondaryOperation(new ArmOperation(ArmOperation.Type.AutoDeposit, "Get arm to auto-deposit level"));
+            state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop eating pixel"));
+
             states.add(state);
 
             state = new State("Drop yellow pixel");
@@ -145,18 +159,18 @@ public abstract class Autonomous extends AutonomousHelper {
             state.addPrimaryOperation(new DriveToAprilTag(11.5 * Field.MM_PER_INCH, desiredAprilTagId, "Drive to April Tag"));
             //push yellow pixel out
             state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Expel, "Expel pixel"));
-            //state.addPrimaryOperation(new WaitOperation(3000, "wait three seconds"));
+            state.addPrimaryOperation(new WaitOperation(3000, "wait three seconds"));
             states.add(state);
 
 
             state = new State("Navigate");
             state.addSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop in/out take"));
 
-            state.addPrimaryOperation(new DriveForDistanceOperation(-10 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Back Away"));
-            if (match.getAlliance() == Alliance.Color.RED) {
-                state.addPrimaryOperation(new StrafeRightForDistanceOperation(24 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Navigate"));
+            state.addPrimaryOperation(new DriveForDistanceOperation(-4 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Back Away"));
+            if (alliance == Alliance.Color.RED) {
+                state.addPrimaryOperation(new StrafeRightForDistanceOperation(20 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Navigate"));
             } else {
-                state.addPrimaryOperation(new StrafeLeftForDistanceOperation(24 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Navigate"));
+                state.addPrimaryOperation(new StrafeLeftForDistanceOperation(20 * Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Navigate"));
             }
 
             states.add(state);
@@ -166,33 +180,18 @@ public abstract class Autonomous extends AutonomousHelper {
             state = new State("Reach backdrop from audience side");
             //rotate to face the audience
             state.addPrimaryOperation(new BearingOperation(-bearingToBackdrop, "Face audience"));
-            //find and align with the big april tag on the audience side
+            //find and align with the small april tag on the audience side
             state.addPrimaryOperation(new DriveToAprilTag(
-                    10*Field.MM_PER_INCH,
-                    match.getAlliance() == Alliance.Color.RED ? 8 : 10,
+                    20*Field.MM_PER_INCH,
+                    alliance == Alliance.Color.RED ? 8 : 10,
                     "Align with april tag"));
             //realign to face audience
-            //state.addPrimaryOperation(new BearingOperation(-bearingToBackdrop, robot.getDriveTrain(), "Face away from backdrop"));
+            state.addPrimaryOperation(new BearingOperation(bearingToAudience, "Realign: Face audience"));
 
-            //drive forwards to get clear spike closest to audience
-            //state.addPrimaryOperation(new DriveInDirectionOperation(6*Field.MM_PER_INCH, -bearingToBackdrop, RobotConfig.CAUTIOUS_SPEED, "Approach wall"));
-
-            if (match.getAlliance() == Alliance.Color.RED) {
-                /*
-                state.addPrimaryOperation(
-                        new StrafeRightToAprilTagOperation(
-                                8,
-                                "Align with stack"));
-                                */
+            if (alliance == Alliance.Color.RED) {
                 state.addPrimaryOperation(new StrafeRightForDistanceOperation(30*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Reach middle tile"));
             }
             else {
-                /*
-                state.addPrimaryOperation(
-                        new StrafeLeftToAprilTagOperation(
-                                10,
-                                "Align with stack"));
-                                */
                 state.addPrimaryOperation(new StrafeLeftForDistanceOperation(30*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Reach middle tile"));
             }
             //rotate to face the backdrop
@@ -205,11 +204,12 @@ public abstract class Autonomous extends AutonomousHelper {
             states.add(state);
 
             state = new State("Raise to auto deposit position and move forward");
-            state.addPrimaryOperation((new DriveInDirectionOperation(Field.TILE_WIDTH, bearingToBackdrop, RobotConfig.CAUTIOUS_SPEED, "Get near backdrop")));
+            state.addPrimaryOperation((new DriveInDirectionOperation(Field.TILE_WIDTH/2, bearingToBackdrop, RobotConfig.CAUTIOUS_SPEED, "Get near backdrop")));
             state.addSecondaryOperation(new ArmOperation(ArmOperation.Type.AutoDeposit, "Arm to auto-deposit position"));
+            states.add(state);
 
             state = new State("Strafe to see tags");
-            if (match.getAlliance() == Alliance.Color.RED) {
+            if (alliance == Alliance.Color.RED) {
                 state.addPrimaryOperation(
                         new StrafeRightToAprilTagOperation(
                                 desiredAprilTagId,
@@ -221,16 +221,16 @@ public abstract class Autonomous extends AutonomousHelper {
                         desiredAprilTagId,
                             "Strafe until we see the april tag"));
             }
+            state.addPrimaryOperation(new BearingOperation(bearingToBackdrop, "Realign to backdrop"));
             //run into backdrop
             state.addPrimaryOperation(new DriveToAprilTag(11.5 * Field.MM_PER_INCH, desiredAprilTagId,  "Drive to April Tag"));
-            //state.addPrimaryOperation(new DriveForDistanceOperation(13*Field.MM_PER_INCH, RobotConfig.CAUTIOUS_SPEED, "Reach backdrop"));
             //push yellow pixel out
             state.addPrimaryOperation(new ArmOperation(ArmOperation.Type.Expel, "Expel pixel"));
+            //backup a little
+            state.addPrimaryOperation((new DriveInDirectionOperation(-4*Field.TILE_WIDTH, bearingToBackdrop, RobotConfig.CAUTIOUS_SPEED, "Back away from backdrop")));
 
             states.add(state);
 
         }
-
-        Match.log("Created and added state");
     }
 }

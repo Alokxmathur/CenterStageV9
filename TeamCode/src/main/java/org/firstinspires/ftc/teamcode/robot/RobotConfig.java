@@ -12,6 +12,7 @@
     public static final String RIGHT_FRONT_DRIVE = "rightFrontDrive";
     public static final String WEBCAM_ID = "Webcam 1";
     public static final String BLINKIN = "blinkin";
+    public static final String WHITE_LED = "whiteLED";
 
     public static final String SHOULDER = "shoulder";
     public static final String ELBOW = "elbow";
@@ -28,6 +29,7 @@
     public static final String DRONE_LAUNCHER = "droneLauncher";
     public static final String DRONE_HOLDER = "droneHolder";
 
+    public static final String COLOR_SENSOR = "colorSensor";
     public static final double WRIST_STARTING_POSITION = .9;
     public static final double WRIST_DEPOSIT_POSITION_1 = .929;
     public static final double WRIST_DEPOSIT_POSITION_3 = .45;
@@ -50,8 +52,8 @@
     public static final double DRONE_HOLDER_RELEASE_POSITION = 0.5;
     public static final double TRIGGER_INCREMENT = 0.01;
 
-    public static final double MINIARM_INITIAL_POSITION = 0.5;
-    public static final double MINIARM_DROP_POSITION = .4;
+    public static final double MINIARM_INITIAL_POSITION = 0.6;
+    public static final double MINIARM_DROP_POSITION = .2;
 
     public static final double CAUTIOUS_SPEED = 0.6;
     public static final double APRIL_TAG_SPEED = 0.3;
@@ -120,7 +122,7 @@
             140,
             ELBOW_TRAVEL_POSITION,
             ROTATOR_INTAKE_POSITION,
-            WRIST_TRAVEL_POSITION);
+            .14);
     public static final ArmPosition ARM_RAISED_POSITION = new ArmPosition(
             140,
             -620,
@@ -133,10 +135,10 @@
             WRIST_INTERIM_TRAVEL_POSITION);
 
     public static final ArmPosition ARM_AUTO_DEPOSIT_POSITION = new ArmPosition(
-            1080,
-            -1490,
+            580,
+            -1660,
             0,
-            .319);
+            .329);
 
     public static final ArmPosition ARM_PRE_HANG_POSITION = new ArmPosition(
             2300,

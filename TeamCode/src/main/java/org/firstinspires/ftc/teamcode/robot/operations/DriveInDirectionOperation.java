@@ -35,51 +35,51 @@ public class DriveInDirectionOperation extends DriveForDistanceOperation {
 
     public String toString() {
         return String.format(Locale.getDefault(), "DriveInDirection: %.2f(%.2f\")@%.2f --%s",
-                this.distance, (this.distance / Field.MM_PER_INCH), this.direction,
+                this.distance, (this.distance / Field.MM_PER_INCH), Math.toDegrees(this.direction),
                 this.title);
     }
 
     public boolean isComplete() {
-        double currentBearing = Math.toDegrees(driveTrain.getExternalHeading());
         if (driveTrain.driveTrainWithinRange()) {
             return true;
         } else {
-            // adjust relative speed based on heading error.
-            double bearingError = AngleUnit.normalizeDegrees(Math.toDegrees(direction) - currentBearing);
-            double steer = DriveTrain.getSteer(bearingError, DriveTrain.P_DRIVE_COEFFICIENT);
-
-            // if driving in reverse, the motor correction also needs to be reversed
-            if (distance < 0)
-                steer *= -1.0;
-            double speedToUse = speed;
-            double leftSpeed = speedToUse - steer;
-            double rightSpeed = speedToUse + steer;
-
-            // Normalize speeds if either one exceeds +/- 1.0;
-            double max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
-            if (max > 1.0) {
-                leftSpeed /= max;
-                rightSpeed /= max;
-            }
-
-            Match.log(String.format(Locale.getDefault(), "%.2f vs %.2f, Bearing error: %.2f, Setting power LF:%.2f,LR:%.2f,RF:%.2f,RR%.2f",
-                    Math.toDegrees(direction), currentBearing, bearingError, leftSpeed, leftSpeed, rightSpeed, rightSpeed));
-
-            driveTrain.setLeftFrontPower(leftSpeed);
-            driveTrain.setLeftRearPower(leftSpeed);
-            driveTrain.setRightFrontPower(rightSpeed);
-            driveTrain.setRightRearPower(rightSpeed);
-
+            driveInDirection(direction, speed, distance < 0, driveTrain);
             return false;
         }
     }
 
-    public double getSpeed() {
-        return this.speed;
+    public static void driveInDirection(double direction, double speed, boolean backwards, DriveTrain driveTrain) {
+        double currentBearing = Math.toDegrees(driveTrain.getExternalHeading());
+
+        // adjust relative speed based on heading error.
+        double bearingError = AngleUnit.normalizeDegrees(Math.toDegrees(direction) - currentBearing);
+        double steer = DriveTrain.getSteer(bearingError, DriveTrain.P_DRIVE_COEFFICIENT);
+
+        // if driving in reverse, the motor correction also needs to be reversed
+        if (backwards)
+            steer *= -1.0;
+        double speedToUse = speed;
+        double leftSpeed = speedToUse - steer;
+        double rightSpeed = speedToUse + steer;
+
+        // Normalize speeds if either one exceeds +/- 1.0;
+        double max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
+        if (max > 1.0) {
+            leftSpeed /= max;
+            rightSpeed /= max;
+        }
+
+        Match.log(String.format(Locale.getDefault(), "%.2f vs %.2f, Bearing error: %.2f, Setting power LF:%.2f,LR:%.2f,RF:%.2f,RR%.2f",
+                Math.toDegrees(direction), currentBearing, bearingError, leftSpeed, leftSpeed, rightSpeed, rightSpeed));
+
+        driveTrain.setLeftFrontPower(leftSpeed);
+        driveTrain.setLeftRearPower(leftSpeed);
+        driveTrain.setRightFrontPower(rightSpeed);
+        driveTrain.setRightRearPower(rightSpeed);
     }
 
-    public double getDistance() {
-        return this.distance;
+    public double getSpeed() {
+        return this.speed;
     }
 }
 

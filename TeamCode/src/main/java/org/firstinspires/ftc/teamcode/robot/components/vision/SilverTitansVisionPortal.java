@@ -5,14 +5,18 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.firstinspires.ftc.teamcode.robot.components.vision.detector.ObjectDetectionVisionProcessor;
 import org.firstinspires.ftc.teamcode.robot.components.vision.detector.ObjectDetector;
+import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class SilverTitansVisionPortal {
     org.firstinspires.ftc.vision.VisionPortal visionPortal;
@@ -141,5 +145,23 @@ public class SilverTitansVisionPortal {
     }
     public void disableAprilTags() {
         this.visionPortal.setProcessorEnabled(aprilTagProcessor, false);
+    }
+    public void setExposureAndGain() {
+        // Make sure camera is streaming before we try to set the exposure controls
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+            if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
+                exposureControl.setMode(ExposureControl.Mode.Manual);
+            }
+            else if (exposureControl.getExposure(TimeUnit.MILLISECONDS) != 6) {
+                exposureControl.setExposure((long) 6, TimeUnit.MILLISECONDS);
+            }
+            else {
+                GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+                if (gainControl.getGain() != 250) {
+                    gainControl.setGain(250);
+                }
+            }
+        }
     }
 }

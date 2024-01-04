@@ -45,7 +45,7 @@ public class DriveForDistanceOperation extends DriveTrainOperation {
     public void setDistance(double distance) {
         this.distance = distance;
     }
-    public double getDistance() {
+    public double getDistanceToAprilTag() {
         return this.distance;
     }
 

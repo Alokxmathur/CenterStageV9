@@ -57,8 +57,8 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.SilverTitansDriveC
  */
 @Config
 public class SilverTitansMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0.001);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(4, 0, 0.001);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(4, 0, 0.001);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(2, 0, 0.001);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -98,11 +98,10 @@ public class SilverTitansMecanumDrive extends MecanumDrive {
 
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.UP
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP
         ));
         imu.initialize(parameters);
-        imu.resetYaw();
-        Match.log("Initialized IMU to yaw of " + imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        resetYaw();
 
         leftFront = hardwareMap.get(DcMotorEx.class, RobotConfig.LEFT_FRONT_DRIVE);
         leftRear = hardwareMap.get(DcMotorEx.class, RobotConfig.LEFT_REAR_DRIVE);
@@ -317,5 +316,9 @@ public class SilverTitansMecanumDrive extends MecanumDrive {
     public void ensureWheelDirection() {
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+    public void resetYaw() {
+        this.imu.resetYaw();
+        Match.log("Initialized IMU to yaw of " + imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
     }
 }

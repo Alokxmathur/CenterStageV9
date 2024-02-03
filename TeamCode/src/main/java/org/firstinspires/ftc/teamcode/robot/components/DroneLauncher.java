@@ -8,29 +8,33 @@ import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import java.util.Locale;
 
 public class DroneLauncher {
-    Servo droneLauncher, droneHolder;
+    Servo droneHolder, droneLoader;
 
     public DroneLauncher(HardwareMap hardwareMap) {
-        this.droneLauncher =hardwareMap.get(Servo.class, RobotConfig.DRONE_LAUNCHER);
-        this.droneHolder =hardwareMap.get(Servo.class, RobotConfig.DRONE_HOLDER);
+        this.droneHolder = hardwareMap.get(Servo.class, RobotConfig.DRONE_HOLDER);
+        this.droneLoader = hardwareMap.get(Servo.class, RobotConfig.DRONE_LOADER);
 
         assumeInitialPosition();
     }
 
     public void assumeInitialPosition() {
-        this.droneLauncher.setPosition(RobotConfig.DRONE_TRIGGER_INITIAL_POSITION);
-        this.droneHolder.setPosition(RobotConfig.DRONE_HOLDER_INITIAL_POSITION);
+        this.droneHolder.setPosition(RobotConfig.DRONE_HOLDER_HOLD_POSITION);
+        this.droneLoader.setPosition(RobotConfig.DRONE_LOADER_INITIAL_POSITION);
     }
 
-    public void releaseHold() {
-        this.droneHolder.setPosition(RobotConfig.DRONE_HOLDER_RELEASE_POSITION);
-    }
-    public void launchDrone()  {
-        this.droneLauncher.setPosition(RobotConfig.DRONE_TRIGGER_RELEASE_POSITION);
+    public void releaseDrone()  {
+        this.droneHolder.setPosition(RobotConfig.DRONE_TRIGGER_RELEASE_POSITION);
     }
     public void holdDrone() {
-        this.droneHolder.setPosition(RobotConfig.DRONE_HOLDER_INITIAL_POSITION);
-        this.droneLauncher.setPosition(RobotConfig.DRONE_TRIGGER_INITIAL_POSITION);
+        this.droneHolder.setPosition(RobotConfig.DRONE_HOLDER_HOLD_POSITION);
+    }
+
+    public void incrementalLoad() {
+        this.droneLoader.setPosition(droneLoader.getPosition() + RobotConfig.TRIGGER_INCREMENT);
+    }
+
+    public void decrementalLoad() {
+        this.droneLoader.setPosition(droneLoader.getPosition() - RobotConfig.TRIGGER_INCREMENT);
     }
 
     public void incrementalHold() {
@@ -40,20 +44,19 @@ public class DroneLauncher {
     public void decrementalHold() {
         this.droneHolder.setPosition(droneHolder.getPosition() - RobotConfig.TRIGGER_INCREMENT);
     }
-
-    public void incrementalLaunch() {
-        this.droneLauncher.setPosition(droneLauncher.getPosition() + RobotConfig.TRIGGER_INCREMENT);
-    }
-
-    public void decrementalLaunch() {
-        this.droneLauncher.setPosition(droneLauncher.getPosition() - RobotConfig.TRIGGER_INCREMENT);
-    }
     public void stop() {
     }
 
     public String getStatus() {
-        return String.format(Locale.getDefault(), "L:%.3f, H:%.3f",
-                droneLauncher.getPosition(),
-                droneHolder.getPosition());
+        return String.format(Locale.getDefault(), "Holder:%.3f, Loader:%.3f",
+                droneHolder.getPosition(),
+                droneLoader.getPosition());
+    }
+
+    public void goToShootingPosition() {
+        this.droneLoader.setPosition(RobotConfig.DRONE_LOADER_SHOOTING_POSITION);
+    }
+    public void goToTravelPosition() {
+        this.droneLoader.setPosition(RobotConfig.DRONE_LOADER_TRAVEL_POSITION);
     }
 }

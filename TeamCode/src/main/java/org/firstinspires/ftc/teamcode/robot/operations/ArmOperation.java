@@ -24,7 +24,8 @@ import java.util.Locale;
 public class ArmOperation extends Operation {
 
     public enum Type {
-        Intake, Raised, Travel, InterimTravel, Travel_From_Deposit, Deposit1, Deposit2, Deposit3, AutoDeposit,
+        Intake, Raised, ExtendedTravel, UnderRiggingTravel, UnderStageDoorTravel, Travel_From_Deposit, Deposit1, Deposit2, Deposit3,
+        Deposit1Backwards, Deposit2Backwards, AutoDeposit,
         PreHang, Hang1, Hang2,
         Eat, ThrowUp, Expel, Abstain
     }
@@ -46,10 +47,13 @@ public class ArmOperation extends Operation {
 
         switch (this.type) {
             case Intake:
-            case Travel:
-            case InterimTravel:
+            case ExtendedTravel:
+            case UnderRiggingTravel:
+            case UnderStageDoorTravel:
             case Deposit1:
             case Deposit2:
+            case Deposit1Backwards:
+            case Deposit2Backwards:
             case Deposit3:
             case AutoDeposit:
             case Hang1:
@@ -70,10 +74,13 @@ public class ArmOperation extends Operation {
     public void startOperation() {
         switch (this.type) {
             case Intake:
-            case Travel:
-            case InterimTravel:
+            case ExtendedTravel:
+            case UnderRiggingTravel:
+            case UnderStageDoorTravel:
             case Deposit1:
             case Deposit2:
+            case Deposit1Backwards:
+            case Deposit2Backwards:
             case Deposit3:
             case AutoDeposit:
             case Hang1:

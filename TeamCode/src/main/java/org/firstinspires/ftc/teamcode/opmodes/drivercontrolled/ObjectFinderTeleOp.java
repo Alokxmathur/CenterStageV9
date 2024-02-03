@@ -21,10 +21,12 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.drivercontrolled;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.robot.components.vision.SilverTitansVisionPortal;
+import org.firstinspires.ftc.teamcode.robot.components.vision.detector.ObjectDetector;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -38,6 +40,11 @@ public class ObjectFinderTeleOp extends DriverControlledOperation {
     public void init() {
         super.init();
         visionPortal = robot.getVisionPortal();
+        visionPortal.enableObjectDetection();
+        visionPortal.enableObjectDetection(ObjectDetector.ObjectType.GreenPixel);
+        visionPortal.enableObjectDetection(ObjectDetector.ObjectType.YellowPixel);
+        visionPortal.enableObjectDetection(ObjectDetector.ObjectType.PurplePixel);
+        visionPortal.enableObjectDetection(ObjectDetector.ObjectType.WhitePixel);
     }
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP

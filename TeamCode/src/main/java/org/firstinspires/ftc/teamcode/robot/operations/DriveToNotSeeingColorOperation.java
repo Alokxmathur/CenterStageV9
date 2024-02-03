@@ -24,7 +24,7 @@ public class DriveToNotSeeingColorOperation extends DriveToColorOperation {
 
     public String toString() {
         return String.format(Locale.getDefault(), "DriveToNotColor: %s@%.2f --%s",
-                this.type, this.robotRelativeHeading,
+                this.type, this.heading,
                 this.title);
     }
 

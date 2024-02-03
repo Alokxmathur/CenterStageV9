@@ -19,7 +19,7 @@ import java.util.Map;
 
 
 public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vision.VisionProcessor {
-    ObjectDetector objectDetector = new ObjectDetector(0, RobotConfig.X_PIXEL_COUNT, 200, RobotConfig.Y_PIXEL_COUNT);
+    ObjectDetector objectDetector = new ObjectDetector(0, RobotConfig.X_PIXEL_COUNT, 220, RobotConfig.Y_PIXEL_COUNT);
     private final TextPaint textPaint = new TextPaint();
     private final Paint greenLinePaint = new Paint();
     private final Paint redLinePaint = new Paint();
@@ -67,13 +67,14 @@ public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vis
 
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
+
         // this method draws the rectangle around the largest contour and puts the current position into that rectangle
         // you don't need to call it
 
         //draw rectangle around area of interest
         Rect areaOfInterest = objectDetector.getAreaOfInterest();
         drawRectangle(canvas, scaleBmpPxToCanvasPx, redLinePaint, areaOfInterest);
-        Map<ObjectDetector.ObjectType, DetectableObject> detectedObjects = (Map<ObjectDetector.ObjectType, DetectableObject>) userContext;
+        Map<ObjectDetector.ObjectType, DetectableObject> detectedObjects = objectDetector.getDetectableObjects();
         //paint information about each of the largest objects seen
         synchronized (detectedObjects) {
             for (DetectableObject detectableObject : detectedObjects.values()) {
@@ -87,7 +88,7 @@ public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vis
     }
 
     private static void paintObject(Canvas canvas, float scaleBmpPxToCanvasPx, Paint linePaint, TextPaint textPaint, DetectableObject detectableObject) {
-        Rect rect = detectableObject.getBoundingRectangleOfLargestObject();
+        Rect rect = detectableObject.getBoundingRectangleOfObject();
         if (rect != null) {
             drawRectangle(canvas, scaleBmpPxToCanvasPx, linePaint, rect);
             String text = String.format(Locale.getDefault(), "%s @%d,%d",
@@ -148,12 +149,12 @@ public class ObjectDetectionVisionProcessor implements org.firstinspires.ftc.vis
         objectDetector.incrementMaxAllowedY();
     }
 
-    public double getXPositionOfLargestObject(ObjectDetector.ObjectType objectType) {
+    public double getXPositionOfObject(ObjectDetector.ObjectType objectType) {
         return objectDetector.getXPositionOfLargestObject(objectType);
     }
 
-    public double getYPositionOfLargestObject(ObjectDetector.ObjectType objectType) {
-        return objectDetector.getYPositionOfLargestObject(objectType);
+    public double getYPositionOfObject(ObjectDetector.ObjectType objectType) {
+        return objectDetector.getYPositionOfObject(objectType);
     }
 
     public double getWidthOfLargestObject(ObjectDetector.ObjectType objectType) {

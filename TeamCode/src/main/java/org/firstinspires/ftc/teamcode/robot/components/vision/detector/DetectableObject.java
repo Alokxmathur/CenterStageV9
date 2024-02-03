@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.robot.components.vision.detector;
 
-import org.firstinspires.ftc.teamcode.game.Match;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -20,7 +17,9 @@ import java.util.Locale;
 public class DetectableObject {
     ObjectDetector.ObjectType type;
     ObjectDetector.HsvBounds[] hsvBounds;
-    List<MatOfPoint> foundObjects = new ArrayList<>();
+    MatOfPoint foundObject = null;
+    Rect boundingRectangle;
+    RotatedRect rotatedRectangle;
 
     double largestArea;
     double width;
@@ -68,51 +67,44 @@ public class DetectableObject {
         this.hsvBounds = hsvBounds;
     }
 
-    public List<MatOfPoint> getFoundObjects() {
-        return this.foundObjects;
+    public MatOfPoint getFoundObject() {
+        return this.foundObject;
     }
 
     public void clearFoundObjects() {
-        if (this.foundObjects != null) {
-            for (MatOfPoint contour: this.foundObjects) {
-                try {
-                    contour.release();
-                }
-                catch (Throwable e) {}
-            }
+        if (this.foundObject != null) {
+            this.foundObject.release();
         }
-        this.foundObjects = new ArrayList<>();
+        this.foundObject = null;
+        this.boundingRectangle = null;
+        this.rotatedRectangle = null;
         largestArea = 0;
     }
 
     /**
-     * Add an object to the list of the objects of this type
+     * Add an object
      * If the area passed is greater than the largest area already found, the new object passed is
      * considered the largest object and the mean of it considered the mean of the largest object
      *
      * @param objectFound
-     * @param area        - are of the object found
+     * @param area        - area of the object found
      */
     public void addFoundObject(MatOfPoint objectFound, double area) {
-        this.foundObjects.add(objectFound);
         if (area > largestArea) {
-            largestAreaIndex = this.foundObjects.size() - 1;
+            this.foundObject = objectFound;
+            boundingRectangle = Imgproc.boundingRect(foundObject);
+            rotatedRectangle = Imgproc.minAreaRect(new MatOfPoint2f(foundObject.toArray()));
             largestArea = area;
-            //Match.log("Setting largest area of " + type + " to be " + area);
         }
     }
 
     /**
-     * Returns the largest object seen of this detectable object type
+     * Returns the object seen of this detectable object type
      *
      * @return
      */
-    public MatOfPoint getLargestObject() {
-        if (largestAreaIndex < this.foundObjects.size()) {
-            return this.foundObjects.get(largestAreaIndex);
-        } else {
-            return null;
-        }
+    public MatOfPoint getObjectSeen() {
+        return this.foundObject;
     }
 
     /**
@@ -120,11 +112,9 @@ public class DetectableObject {
      *
      * @return
      */
-    public int getYPositionOfLargestObject() {
-        MatOfPoint largestObject = getLargestObject();
-        if (largestObject != null) {
+    public int getYPositionOfObject() {
+        if (boundingRectangle != null) {
             try {
-                Rect boundingRectangle = Imgproc.boundingRect(largestObject);
                 return boundingRectangle.y + boundingRectangle.height / 2;
             }
             catch (Throwable e){}
@@ -133,15 +123,13 @@ public class DetectableObject {
     }
 
     /**
-     * Returns the x position of the center of the largest object
+     * Returns the x position of the center of the object
      *
      * @return
      */
-    public int getXPositionOfLargestObject() {
-        MatOfPoint largestObject = getLargestObject();
-        if (largestObject != null) {
+    public int getXPositionOfObject() {
+        if (foundObject != null) {
             try {
-                Rect boundingRectangle = Imgproc.boundingRect(largestObject);
                 return boundingRectangle.x + boundingRectangle.width / 2;
             }
             catch (Throwable e) {
@@ -155,8 +143,7 @@ public class DetectableObject {
      *
      * @return
      */
-    public double getWidthOfLargestObject() {
-        RotatedRect rotatedRectangle = getRotatedRectangleOfLargestObject();
+    public double getWidthOfObject() {
         if (rotatedRectangle != null) {
             return rotatedRectangle.size.height;
         } else {
@@ -169,8 +156,7 @@ public class DetectableObject {
      *
      * @return
      */
-    public double getHeightOfLargestObject() {
-        RotatedRect rotatedRectangle = getRotatedRectangleOfLargestObject();
+    public double getHeightOfObject() {
         if (rotatedRectangle != null) {
             return rotatedRectangle.size.width;
         } else {
@@ -184,18 +170,8 @@ public class DetectableObject {
      *
      * @return
      */
-    public Rect getBoundingRectangleOfLargestObject() {
-        MatOfPoint largestObject = getLargestObject();
-        if (largestObject != null) {
-            try {
-                return Imgproc.boundingRect(largestObject);
-            }
-            catch (Throwable e) {
-                return null;
-            }
-        } else {
-            return null;
-        }
+    public Rect getBoundingRectangleOfObject() {
+        return boundingRectangle;
     }
 
     /**
@@ -204,18 +180,8 @@ public class DetectableObject {
      *
      * @return
      */
-    public RotatedRect getRotatedRectangleOfLargestObject() {
-        MatOfPoint largestObject = getLargestObject();
-        if (largestObject != null) {
-            try {
-                return Imgproc.minAreaRect(new MatOfPoint2f(largestObject.toArray()));
-            }
-            catch (Throwable e) {
-                return null;
-            }
-        } else {
-            return null;
-        }
+    public RotatedRect getRotatedRectangleOfObject() {
+        return rotatedRectangle;
     }
 
     public double getLargestArea() {
@@ -240,11 +206,10 @@ public class DetectableObject {
     }
 
     public String toString() {
-        return String.format(Locale.getDefault(), "Count:%d,Largest@%d,%d,area:%.0f, placement: %s",
-                getFoundObjects().size(),
-                getXPositionOfLargestObject(),
-                getYPositionOfLargestObject(),
+        return String.format(Locale.getDefault(), "@%d,%d,area:%.0f, placement: %s",
+                getXPositionOfObject(),
+                getYPositionOfObject(),
                 largestArea,
-                getXPositionOfLargestObject() > 1200 ? "Right" : (getXPositionOfLargestObject() > 600 ? "Middle" : "Left"));
+                getXPositionOfObject() > 1200 ? "Right" : (getXPositionOfObject() > 600 ? "Middle" : "Left"));
     }
 }

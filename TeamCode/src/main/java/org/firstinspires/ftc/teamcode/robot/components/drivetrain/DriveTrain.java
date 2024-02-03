@@ -34,27 +34,6 @@ public class DriveTrain extends SilverTitansMecanumDrive {
     public static final double     P_TURN_COEFFICIENT            = 1;     // Larger is more responsive, but also less stable
     public static final double P_DRIVE_COEFFICIENT = 0.0125 * Math.PI;     // Larger is more responsive, but also less stable
 
-    int lastLeftFrontEncoderValue;
-    int lastLeftRearEncoderValue;
-    int lastRightFrontEncoderValue;
-    int lastRightRearEncoderValue;
-
-    public int getLastLeftFrontEncoderValue() {
-        return lastLeftFrontEncoderValue;
-    }
-
-    public int getLastLeftRearEncoderValue() {
-        return lastLeftRearEncoderValue;
-    }
-
-    public int getLastRightFrontEncoderValue() {
-        return lastRightFrontEncoderValue;
-    }
-
-    public int getLastRightRearEncoderValue() {
-        return lastRightRearEncoderValue;
-    }
-
 
     public DriveTrain(HardwareMap hardwareMap) {
         super(hardwareMap);
@@ -171,12 +150,13 @@ public class DriveTrain extends SilverTitansMecanumDrive {
      */
     public void handleOperation(DriveForDistanceOperation operation) {
         stop();
+        resetEncoders();
 
-        int encoderChange = SilverTitansDriveConstants.mmToEncoderTicks(operation.getDistanceToAprilTag());
-        this.leftFront.setTargetPosition(leftFront.getCurrentPosition() + encoderChange);
-        this.rightFront.setTargetPosition(rightFront.getCurrentPosition() + encoderChange);
-        this.leftRear.setTargetPosition(leftRear.getCurrentPosition() + encoderChange);
-        this.rightRear.setTargetPosition(rightRear.getCurrentPosition() + encoderChange);
+        int targetPosition = SilverTitansDriveConstants.mmToEncoderTicks(operation.getDistanceToTravel());
+        this.leftFront.setTargetPosition(targetPosition);
+        this.rightFront.setTargetPosition(targetPosition);
+        this.leftRear.setTargetPosition(targetPosition);
+        this.rightRear.setTargetPosition(targetPosition);
 
         this.leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         this.rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -208,7 +188,7 @@ public class DriveTrain extends SilverTitansMecanumDrive {
     public void handleOperation(TurnClockwiseOperation operation) {
         stop();
 
-        int encoderChange = SilverTitansDriveConstants.mmToEncoderTicks(operation.getDistanceToAprilTag());
+        int encoderChange = SilverTitansDriveConstants.mmToEncoderTicks(operation.getDistanceToTravel());
         this.rightFront.setTargetPosition(leftFront.getCurrentPosition() + encoderChange/2);
         this.rightRear.setTargetPosition(rightRear.getCurrentPosition() + encoderChange/2);
         this.leftFront.setTargetPosition(leftFront.getCurrentPosition() + encoderChange);
@@ -237,7 +217,7 @@ public class DriveTrain extends SilverTitansMecanumDrive {
     public void handleOperation(TurnAntiClockwiseOperation operation) {
         stop();
 
-        int encoderChange = SilverTitansDriveConstants.mmToEncoderTicks(operation.getDistanceToAprilTag());
+        int encoderChange = SilverTitansDriveConstants.mmToEncoderTicks(operation.getDistanceToTravel());
         this.rightFront.setTargetPosition(leftFront.getCurrentPosition() + encoderChange);
         this.rightRear.setTargetPosition(rightRear.getCurrentPosition() + encoderChange);
         this.leftFront.setTargetPosition(leftFront.getCurrentPosition() + encoderChange/2);
@@ -374,10 +354,6 @@ public class DriveTrain extends SilverTitansMecanumDrive {
     }
 
     public void stop() {
-        lastLeftFrontEncoderValue = leftFront.getCurrentPosition();
-        lastLeftRearEncoderValue = leftRear.getCurrentPosition();
-        lastRightFrontEncoderValue = rightFront.getCurrentPosition();
-        lastRightRearEncoderValue = rightRear.getCurrentPosition();
         //Stop our motors
         leftFront.setPower(0);
         rightFront.setPower(0);

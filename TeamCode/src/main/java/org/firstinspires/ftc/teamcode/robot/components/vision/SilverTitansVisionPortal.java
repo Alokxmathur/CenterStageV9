@@ -22,6 +22,8 @@ public class SilverTitansVisionPortal {
     org.firstinspires.ftc.vision.VisionPortal visionPortal;
     AprilTagProcessor aprilTagProcessor;
     ObjectDetectionVisionProcessor objectDetectionVisionProcessor;
+
+    boolean initialized;
     public void init(HardwareMap hardwareMap) {
         this.aprilTagProcessor = new AprilTagProcessor.Builder().build();
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
@@ -97,11 +99,11 @@ public class SilverTitansVisionPortal {
         this.objectDetectionVisionProcessor.manageVisibility(gamepad1, gamepad2);
     }
 
-    public double getXPositionOfLargestObject(ObjectDetector.ObjectType objectType) {
-        return objectDetectionVisionProcessor.getXPositionOfLargestObject(objectType);
+    public double getXPositionOfObject(ObjectDetector.ObjectType objectType) {
+        return objectDetectionVisionProcessor.getXPositionOfObject(objectType);
     }
-    public double getYPositionOfLargestObject(ObjectDetector.ObjectType objectType) {
-        return objectDetectionVisionProcessor.getYPositionOfLargestObject(objectType);
+    public double getYPositionOfObject(ObjectDetector.ObjectType objectType) {
+        return objectDetectionVisionProcessor.getYPositionOfObject(objectType);
     }
 
     public double getWidthOfLargestObject(ObjectDetector.ObjectType objectType) {
@@ -147,21 +149,27 @@ public class SilverTitansVisionPortal {
         this.visionPortal.setProcessorEnabled(aprilTagProcessor, false);
     }
     public void setExposureAndGain() {
-        // Make sure camera is streaming before we try to set the exposure controls
-        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
-            if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
-                exposureControl.setMode(ExposureControl.Mode.Manual);
-            }
-            else if (exposureControl.getExposure(TimeUnit.MILLISECONDS) != 6) {
-                exposureControl.setExposure((long) 6, TimeUnit.MILLISECONDS);
-            }
-            else {
-                GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
-                if (gainControl.getGain() != 250) {
-                    gainControl.setGain(250);
+        if (!initialized) {
+            // Make sure camera is streaming before we try to set the exposure controls
+            if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+                if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
+                    exposureControl.setMode(ExposureControl.Mode.Manual);
+                } else if (exposureControl.getExposure(TimeUnit.MILLISECONDS) != 6) {
+                    exposureControl.setExposure((long) 6, TimeUnit.MILLISECONDS);
+                } else {
+                    GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+                    if (gainControl.getGain() != 250) {
+                        gainControl.setGain(250);
+                    } else {
+                        initialized = true;
+                    }
                 }
             }
         }
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 }

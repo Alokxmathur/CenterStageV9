@@ -35,6 +35,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.robot.operations.DroneOperation;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -100,6 +101,7 @@ public class DriverControlledOperation extends OpMode {
     @Override
     public void start() {
         match.setTeleopStartTime(new Date());
+        robot.queueSecondaryOperation(new DroneOperation(DroneOperation.Type.Travel, "Launcher to travel position"));
         robot.getLed().turnOnWhiteLED(true);
     }
 
@@ -120,6 +122,10 @@ public class DriverControlledOperation extends OpMode {
                 telemetry.update();
                 RobotLog.e("TeleOp run", e, "Error");
             }
+        }
+        else {
+            match.updateTelemetry(telemetry, "Robot not fully initialized");
+            robot.getVisionPortal().setExposureAndGain();
         }
     }
 

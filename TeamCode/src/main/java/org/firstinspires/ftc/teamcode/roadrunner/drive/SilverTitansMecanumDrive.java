@@ -15,6 +15,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
+import com.qualcomm.hardware.bosch.BHI260IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -33,10 +34,12 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceRunner;
 import org.firstinspires.ftc.teamcode.roadrunner.util.LynxModuleUtil;
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
+import org.firstinspires.ftc.teamcode.robot.components.drivetrain.SilverTitansIMU;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 
@@ -58,7 +61,7 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.SilverTitansDriveC
 @Config
 public class SilverTitansMecanumDrive extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(4, 0, 0.001);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(2, 0, 0.001);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(1.5, 0, 0.001);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -79,7 +82,7 @@ public class SilverTitansMecanumDrive extends MecanumDrive {
 
     private VoltageSensor batteryVoltageSensor;
 
-    private IMU imu;
+    private SilverTitansIMU silverTitansIMU;
 
     public SilverTitansMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -96,11 +99,29 @@ public class SilverTitansMecanumDrive extends MecanumDrive {
         }
 
 
-        imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+        /**
+         * Create the primary IMU, initialize it and set the Expansion Hub IMU as its secondary IMU
+         */
+        IMU controlHubIMU = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters controlHubParameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP
         ));
-        imu.initialize(parameters);
+        controlHubIMU.initialize(controlHubParameters);
+
+        /**
+         * Create a secondary IMU, the one from the expansion hub. Initialize it.
+         */
+        IMU expansionHubIMU = hardwareMap.get(IMU.class, "imu2");
+        IMU.Parameters expansionHubParameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.UP
+        ));
+        expansionHubIMU.initialize(expansionHubParameters);
+
+        silverTitansIMU = new SilverTitansIMU(controlHubIMU, expansionHubIMU);
+
+        /**
+         * Reset the yaw on the IMU
+         */
         resetYaw();
 
         leftFront = hardwareMap.get(DcMotorEx.class, RobotConfig.LEFT_FRONT_DRIVE);
@@ -294,12 +315,12 @@ public class SilverTitansMecanumDrive extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return silverTitansIMU.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
 
     @Override
     public Double getExternalHeadingVelocity() {
-        return Double.valueOf(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate);
+        return Double.valueOf(silverTitansIMU.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate);
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
@@ -318,7 +339,8 @@ public class SilverTitansMecanumDrive extends MecanumDrive {
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
     }
     public void resetYaw() {
-        this.imu.resetYaw();
-        Match.log("Initialized IMU to yaw of " + imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        this.silverTitansIMU.resetYaw();
+        Match.log(String.format(Locale.getDefault(),
+                "Initialized IMU to yaw of %.3f", silverTitansIMU.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES)));
     }
 }

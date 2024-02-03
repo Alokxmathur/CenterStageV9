@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.game.Match;
 import org.firstinspires.ftc.teamcode.robot.RobotConfig;
 import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
 
@@ -35,18 +34,23 @@ public class Arm {
         this.shoulder = hardwareMap.get(DcMotor.class, RobotConfig.SHOULDER);
         this.shoulder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.shoulder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.shoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        retainShoulder();
 
         this.elbowLimitSwitch = hardwareMap.get(DigitalChannel.class, RobotConfig.ELBOW_LIMIT_SWITCH);
         //initialize our elbow motor
         this.elbow = hardwareMap.get(DcMotor.class, RobotConfig.ELBOW);
         this.elbow.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.elbow.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        retainElbow();
 
         //initialize our intake motor
         this.inOutMotor = hardwareMap.get(DcMotor.class, RobotConfig.INOUT_MOTOR);
         this.inOutMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.inOutMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.inOutMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.abstain();
 
         //and the rotator
         this.rotator = hardwareMap.get(Servo.class, RobotConfig.ROTATOR);
@@ -191,6 +195,14 @@ public class Arm {
                 setPositions(RobotConfig.ARM_DEPOSIT_POSITION_2);
                 break;
             }
+            case Deposit1Backwards: {
+                setPositions(RobotConfig.ARM_DEPOSIT_POSITION_1_BACKWARDS);
+                break;
+            }
+            case Deposit2Backwards: {
+                setPositions(RobotConfig.ARM_DEPOSIT_POSITION_2_BACKWARDS);
+                break;
+            }
             case Deposit3: {
                 setPositions(RobotConfig.ARM_DEPOSIT_POSITION_3);
                 break;
@@ -199,12 +211,16 @@ public class Arm {
                 setPositions(RobotConfig.ARM_AUTO_DEPOSIT_POSITION);
                 break;
             }
-            case Travel: {
-                setPositions(RobotConfig.ARM_TRAVEL_POSITION);
+            case ExtendedTravel: {
+                setPositions(RobotConfig.ARM_EXTENDED_TRAVEL_POSITION);
                 break;
             }
-            case InterimTravel: {
-                setPositions(RobotConfig.ARM_INTERIM_TRAVEL_POSITION);
+            case UnderRiggingTravel: {
+                setPositions(RobotConfig.ARM_UNDER_RIGGING_TRAVEL_POSITION);
+                break;
+            }
+            case UnderStageDoorTravel: {
+                setPositions(RobotConfig.ARM_STAGE_DOOR_TRAVEL_POSITION);
                 break;
             }
             case PreHang: {
@@ -226,11 +242,17 @@ public class Arm {
         }
     }
 
-    private void setPositions(ArmPosition armPosition) {
-        setElbowPosition(armPosition.getElbow());
-        setShoulderPosition(armPosition.getShoulder());
-        rotator.setPosition(armPosition.getRotator());
-        wrist.setPosition(armPosition.getWrist());
+    private void setPositions(ArmState armState) {
+        setElbowPosition(armState.getElbow());
+        setShoulderPosition(armState.getShoulder());
+        rotator.setPosition(armState.getRotator());
+        wrist.setPosition(armState.getWrist());
+        if (armState.eat) {
+            eat();
+        }
+        else {
+            abstain();
+        }
     }
 
     /**

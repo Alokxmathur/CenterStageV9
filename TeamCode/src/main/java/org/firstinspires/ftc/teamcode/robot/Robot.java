@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.robot.components.drivetrain.DriveTrain;
 import org.firstinspires.ftc.teamcode.robot.components.vision.SilverTitansVisionPortal;
 import org.firstinspires.ftc.teamcode.robot.operations.ArmOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.DriveToAprilTag;
+import org.firstinspires.ftc.teamcode.robot.operations.DroneOperation;
 import org.firstinspires.ftc.teamcode.robot.operations.Operation;
 import org.firstinspires.ftc.teamcode.robot.operations.OperationThread;
 
@@ -168,7 +169,9 @@ public class Robot {
      * It should be called repeatedly from the init_loop of autonomous modes until it is done
      */
     public void resetArm() {
-        armInitialized = this.arm.resetArm();
+        if (!armInitialized) {
+            armInitialized = this.arm.resetArm();
+        }
     }
 
     /**
@@ -238,7 +241,13 @@ public class Robot {
     }
 
     public boolean fullyInitialized() {
-        return armInitialized;
+        if (!armInitialized) {
+            return false;
+        }
+        else if (!this.visionPortal.isInitialized()) {
+            return false;
+        }
+        return true;
     }
 
     /*
@@ -256,16 +265,16 @@ public class Robot {
         handleArm(gamePad1, gamePad2);
 
         if (gamePad2.right_bumper) {
-            droneLauncher.launchDrone();
+            queuePrimaryOperation(new DroneOperation(DroneOperation.Type.Shoot, "Shoot"));
         }
         else if (gamePad2.left_bumper) {
             droneLauncher.holdDrone();
         }
-        if (gamePad1.left_bumper) {
-            droneLauncher.releaseHold();
+        if (gamePad1.start) {
+            droneLauncher.incrementalLoad();
         }
-        if (gamePad1.right_bumper) {
-            droneLauncher.launchDrone();
+        if (gamePad1.back) {
+            droneLauncher.decrementalLoad();
         }
     }
 
@@ -334,15 +343,6 @@ public class Robot {
         } else if (gamePad1.dpad_down) {
             arm.forwardRotatorIncrementally();
         }
-        /*
-            gamePad 1 dpad left/right move rotator backward/forward
-        */
-        else if (gamePad1.dpad_left) {
-            arm.backwardRotator();
-        }
-        else if (gamePad1.dpad_right) {
-            arm.forwardRotator();
-        }
 
         /*
             gamePad 2 dpad left/right manage bucket / sorter
@@ -365,11 +365,11 @@ public class Robot {
         else if (gamePad2.right_trigger > .2) {
             arm.expel();
         }
-        if (gamePad1.start) {
-            miniArm.incrementalUp();
+        if (gamePad2.start) {
+            droneLauncher.incrementalHold();
         }
-        if (gamePad1.back) {
-            miniArm.decrementalDrop();
+        if (gamePad2.back) {
+            droneLauncher.decrementalHold();
         }
         /*
             gamePad 2 dpad up/down open/close claw incrementally
@@ -380,27 +380,31 @@ public class Robot {
             arm.raiseBucketIncrementally();
         }
         if (secondaryOperationsCompleted()) {
-            if (gamePad2.a) {
+            if (gamePad2.a && !gamePad2.start) {
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Intake, "Assume Intake"));
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Eat, "Start intake"));
             }
-            if (gamePad2.b) {
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Travel, "Travel Position"));
+            if (gamePad2.b && !gamePad2.start) {
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.UnderRiggingTravel, "Travel Position"));
             }
             if (gamePad2.y) {
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit1, "Low deposit position"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit1Backwards, "Low deposit position"));
             }
             if (gamePad2.x) {
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit2, "High deposit position"));
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Deposit2Backwards, "High deposit position"));
             }
-            if (gamePad1.a) {
-                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.Abstain, "Stop intake"));
+
+            //gamePad 1 dpad left/right under rigging travel / under stage door travel
+
+            if (gamePad1.dpad_left) {
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.UnderRiggingTravel, "Under Rigging Travel position"));
+            }
+            else if (gamePad1.dpad_right) {
+                queueSecondaryOperation(new ArmOperation(ArmOperation.Type.UnderStageDoorTravel, "Under Stage Door Travel position"));
+            }
+            if (gamePad1.a && !gamePad1.start) {
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.AutoDeposit, "Auto Deposit pixels"));
             }
-            if (gamePad1.b) {
+            if (gamePad1.b && !gamePad1.start) {
                 queueSecondaryOperation(new ArmOperation(ArmOperation.Type.PreHang, "Pre-hang position"));
             }
             if (gamePad1.y) {
@@ -462,6 +466,10 @@ public class Robot {
 
     public SilverTitansVisionPortal getVisionPortal() {
         return visionPortal;
+    }
+
+    public DroneLauncher getDroneLauncher() {
+        return droneLauncher;
     }
 
     public Field.SpikePosition getSpikePosition() {

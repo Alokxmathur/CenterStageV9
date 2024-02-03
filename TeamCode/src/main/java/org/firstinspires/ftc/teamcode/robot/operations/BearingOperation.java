@@ -29,7 +29,7 @@ public class BearingOperation extends DriveToPositionOperation {
 
     public String toString() {
         return String.format(Locale.getDefault(),"Bearing: %.2f --%s",
-                this.desiredBearing, this.title);
+                Math.toDegrees(this.desiredBearing), this.title);
     }
 
     public double getDesiredBearing() {

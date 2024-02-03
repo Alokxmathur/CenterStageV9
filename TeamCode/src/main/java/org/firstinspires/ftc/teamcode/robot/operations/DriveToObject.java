@@ -70,7 +70,7 @@ public class DriveToObject extends DriveInDirectionOperation {
     public void setDistance(double distance) {
         this.distance = distance;
     }
-    public double getDistanceToAprilTag() {
+    public double getDistanceToTravel() {
         return this.distance;
     }
 }

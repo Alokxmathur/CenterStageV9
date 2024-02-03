@@ -44,9 +44,9 @@ public class DriveInDirectionToAprilTagOperation extends DriveInDirectionOperati
             double rangeError = (detection.ftcPose.range - distanceToAprilTag / Field.MM_PER_INCH);
 
             /*
-            We consider we have arrived if we are within 1 inch of the desired distance
+            We consider we have arrived if we are within .5 inches of the desired distance
              */
-            if (Math.abs(rangeError) < 1) {
+            if (Math.abs(rangeError) < .5) {
                 driveTrain.stop();
                 return true;
             }
@@ -54,7 +54,7 @@ public class DriveInDirectionToAprilTagOperation extends DriveInDirectionOperati
         return false;
     }
 
-    public double getDistanceToAprilTag() {
+    public double getDistanceToTravel() {
         return this.distanceToAprilTag;
     }
 

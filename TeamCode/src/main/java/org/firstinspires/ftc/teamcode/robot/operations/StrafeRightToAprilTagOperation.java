@@ -26,8 +26,11 @@ public class StrafeRightToAprilTagOperation extends DriveTrainOperation{
         List<AprilTagDetection> aprilTagsSeen = Match.getInstance().getRobot().getVisionPortal().getAprilTags();
         for (AprilTagDetection aprilTagDetection : aprilTagsSeen) {
             if (aprilTagDetection.id == desiredAprilTag) {
-                driveTrain.stop();
-                return true;
+                if (Math.abs(aprilTagDetection.ftcPose.x) < 2) {
+                    driveTrain.stop();
+                    Match.log("Found tag: " + aprilTagDetection.toString());
+                    return true;
+                }
             }
         }
         return false;
@@ -36,6 +39,7 @@ public class StrafeRightToAprilTagOperation extends DriveTrainOperation{
     @Override
     public void startOperation() {
         Match.getInstance().getRobot().getLed().turnOnWhiteLED(true);
+        //strafe right
         this.driveTrain.drive(Math.atan2(RobotConfig.APRIL_TAG_SPEED, 0), Math.hypot(RobotConfig.APRIL_TAG_SPEED, 0), 0);
     }
 }

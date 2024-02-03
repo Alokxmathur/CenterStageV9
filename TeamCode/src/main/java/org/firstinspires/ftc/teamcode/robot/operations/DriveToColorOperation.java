@@ -47,7 +47,7 @@ public class DriveToColorOperation extends DriveTrainOperation {
 
     public String toString() {
         return String.format(Locale.getDefault(), "DriveToColor: %s@%.2f, speed:%.2f --%s",
-                this.type, this.robotRelativeHeading, this.speed,
+                this.type, Math.toDegrees(this.heading), this.speed,
                 this.title);
     }
 
@@ -55,15 +55,15 @@ public class DriveToColorOperation extends DriveTrainOperation {
         boolean seeingColor = false;
         switch (type) {
             case RED: {
-                seeingColor = Match.getInstance().getRobot().getColors().red >= .5;
+                seeingColor = Match.getInstance().getRobot().getColors().red >= .47;
                 break;
             }
             case BLUE: {
-                seeingColor = Match.getInstance().getRobot().getColors().blue >= .5;
+                seeingColor = Match.getInstance().getRobot().getColors().blue >= .47;
                 break;
             }
             case GREEN: {
-                seeingColor = Match.getInstance().getRobot().getColors().green >= .5;
+                seeingColor = Match.getInstance().getRobot().getColors().green >= .47;
                 break;
             }
         }
@@ -72,7 +72,7 @@ public class DriveToColorOperation extends DriveTrainOperation {
             return true;
         }
         else {
-            DriveInDirectionOperation.driveInDirection(heading, RobotConfig.CAUTIOUS_SPEED/2, false, driveTrain);
+            DriveInDirectionOperation.driveInDirection(Math.signum(speed), heading, speed, driveTrain);
             return false;
         }
     }

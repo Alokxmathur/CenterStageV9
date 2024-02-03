@@ -203,18 +203,22 @@ public class ObjectDetector {
     public String getDetectionStatus() {
         StringBuilder status = new StringBuilder();
         for (DetectableObject detectableObject : detectableObjects.values()) {
-            synchronized (detectableObject) {
-                if (!detectableObject.isDisabled() && detectableObject.getFoundObjects().size() > 0) {
-                    status
-                            .append(detectableObject.getShortName())
-                            .append(": ")
-                            .append(detectableObject.getFoundObjects().size())
-                            .append("@")
-                            .append(detectableObject.getXPositionOfLargestObject())
-                            .append(",")
-                            .append(detectableObject.getYPositionOfLargestObject())
-                            .append(", ");
+            try {
+                synchronized (detectableObject) {
+                    if (!detectableObject.isDisabled()) {
+                        status
+                                .append(detectableObject.getShortName())
+                                .append(": ")
+                                .append("@")
+                                .append(detectableObject.getXPositionOfObject())
+                                .append(",")
+                                .append(detectableObject.getYPositionOfObject())
+                                .append(", ");
+                    }
                 }
+            }
+            catch (Throwable e) {
+                e.printStackTrace();
             }
         }
         return status.toString();
@@ -297,8 +301,8 @@ public class ObjectDetector {
             Rect boundingRectangle = Imgproc.boundingRect(contour);
             //check to see if the contour is within our specified x and y limits
             //we multiply by 4 because we had pyramid down twice
-            if (boundingRectangle.x * 4 <= maxAllowedY && boundingRectangle.x * 4 >= minAllowedY
-                    && boundingRectangle.y * 4 <= maxAllowedX && boundingRectangle.y * 4 >= minAllowedX) {
+            if (boundingRectangle.x * 4 <= maxAllowedX && boundingRectangle.x * 4 >= minAllowedX
+                    && boundingRectangle.y * 4 <= maxAllowedY && boundingRectangle.y * 4 >= minAllowedY) {
                 double area = Imgproc.contourArea(contour);
                 //check to see if contour area is at least our minimum area
                 if (area >= MINIMUM_AREA || detectableObject.getType() == ObjectType.CrossHair) {
@@ -385,7 +389,7 @@ public class ObjectDetector {
     public double getDistanceFromCameraOfLargestObject(ObjectType objectType) {
         synchronized (detectableObjects) {
             DetectableObject detectableObject = detectableObjects.get(objectType);
-            Rect boundingRectangle = Imgproc.boundingRect(detectableObject.getLargestObject());
+            Rect boundingRectangle = Imgproc.boundingRect(detectableObject.getObjectSeen());
             return detectableObject.getWidth() * FOCAL_LENGTH / boundingRectangle.height;
         }
     }
@@ -401,7 +405,7 @@ public class ObjectDetector {
     public double getXPositionOfLargestObject(ObjectType objectType) {
         synchronized (detectableObjects) {
             DetectableObject detectableObject = detectableObjects.get(objectType);
-            return detectableObject.getXPositionOfLargestObject();
+            return detectableObject.getXPositionOfObject();
         }
     }
 
@@ -413,10 +417,10 @@ public class ObjectDetector {
      *
      * @return
      */
-    public double getYPositionOfLargestObject(ObjectType objectType) {
+    public double getYPositionOfObject(ObjectType objectType) {
         synchronized (detectableObjects) {
             DetectableObject detectableObject = detectableObjects.get(objectType);
-            return detectableObject.getYPositionOfLargestObject();
+            return detectableObject.getYPositionOfObject();
         }
 
     }
@@ -424,7 +428,7 @@ public class ObjectDetector {
     public double getWidthOfLargestObject(ObjectType objectType) {
         synchronized (detectableObjects) {
             DetectableObject detectableObject = detectableObjects.get(objectType);
-            return detectableObject.getWidthOfLargestObject();
+            return detectableObject.getWidthOfObject();
         }
 
     }
@@ -432,7 +436,7 @@ public class ObjectDetector {
     public double getHeightOfLargestObject(ObjectType objectType) {
         synchronized (detectableObjects) {
             DetectableObject detectableObject = detectableObjects.get(objectType);
-            return detectableObject.getHeightOfLargestObject();
+            return detectableObject.getHeightOfObject();
         }
 
     }
@@ -476,7 +480,7 @@ public class ObjectDetector {
                 detectableObject = getDetectableObjects().get(ObjectDetector.ObjectType.BlueProp);
             }
             if (detectableObject != null) {
-                int xPositionOfProp = detectableObject.getXPositionOfLargestObject();
+                int xPositionOfProp = detectableObject.getXPositionOfObject();
                 if (xPositionOfProp > 450) {
                     lastSpikePosition = Field.SpikePosition.Right;
                 } else if (xPositionOfProp > 150) {

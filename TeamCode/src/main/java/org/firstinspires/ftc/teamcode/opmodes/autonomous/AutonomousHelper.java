@@ -71,6 +71,7 @@ public abstract class AutonomousHelper extends OpMode {
             if (Field.isNotInitialized()) {
                 telemetry.addData("State", "Trajectories initializing, please wait. " +
                         (30 - (int) (new Date().getTime() - initStartTime.getTime()) / 1000));
+                telemetry.update();
             } else if (!robot.fullyInitialized()) {
                 robot.resetArm();
                 robot.getVisionPortal().setExposureAndGain();
@@ -78,15 +79,14 @@ public abstract class AutonomousHelper extends OpMode {
                     match.getAlliance() == Alliance.Color.RED
                             ? ObjectDetector.ObjectType.RedProp
                             : ObjectDetector.ObjectType.BlueProp);
+                telemetry.addData("State", "Robot initializing, please wait.");
             }
             else {
                 robot.handleGameControllers(gamepad1, gamepad2);
+                match.setSpikePosition(robot.getSpikePosition());
+                match.updateTelemetry(telemetry, "Ready");
             }
-            Field.SpikePosition spikePosition = robot.getSpikePosition();
-            match.setSpikePosition(spikePosition);
-            match.updateTelemetry(telemetry, "Ready");
         }
-        telemetry.update();
         Thread.yield();
     }
 

@@ -17,6 +17,7 @@ public class DriveForDistanceOperation extends DriveTrainOperation {
      * @param distance - distance to travel in mms
      * @param speed -1 to 1
      * @param title
+     * Robot will move backwards if either speed or distance is negative, but not both
      */
     public DriveForDistanceOperation(double distance, double speed, String title) {
         super();
@@ -26,7 +27,7 @@ public class DriveForDistanceOperation extends DriveTrainOperation {
     }
 
     public String toString() {
-        return String.format(Locale.getDefault(), "Forward: %.2f(%.2f\")@%.2f --%s",
+        return String.format(Locale.getDefault(), "Distance: %.2f(%.2f\")@%.2f --%s",
                 this.distance, this.distance/ Field.MM_PER_INCH, this.speed,
                 this.title);
     }
@@ -45,7 +46,7 @@ public class DriveForDistanceOperation extends DriveTrainOperation {
     public void setDistance(double distance) {
         this.distance = distance;
     }
-    public double getDistanceToAprilTag() {
+    public double getDistanceToTravel() {
         return this.distance;
     }
 

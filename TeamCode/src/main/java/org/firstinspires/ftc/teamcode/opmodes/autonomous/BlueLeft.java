@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.game.Field;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="BlueLeft", group="Phoebe", preselectTeleOp="Phoebe: Driver Controlled")
 public class BlueLeft extends NearBackDropAutonomous_Swapped {
-    //this is a comment
+
     @Override
     public void init() {
         super.init(telemetry, Alliance.Color.BLUE, Field.StartingPosition.Left);
